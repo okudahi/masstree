@@ -1,0 +1,9 @@
+digraph test {
+    node[
+    shape = circle,              //ノードの形を指定する
+    style = "solid,filled"    //ノードの枠線のスタイルと塗つぶしの指定
+    fillcolor = "#020202",    //ノードを塗りつぶす色
+    fontcolor = "#ffffff"         //ノードラベルフォントカラー
+    ];
+
+}
