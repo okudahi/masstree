@@ -32,9 +32,9 @@ public class Bplustree {
 
         // コンストラクタ
         private InteriorNode() {
-            nkeys = 0;
-            List<String> keys = new ArrayList<String>();
-            List<Node> child = new ArrayList<Node>(1);
+            this.nkeys = 0;
+            this.keys = new ArrayList<String>();
+            this.child = new ArrayList<Node>(1);
         }
 
         // keyが何番目にあるか(無かったら-1)
@@ -54,6 +54,7 @@ public class Bplustree {
                     int cmp = k.compareTo(keys.get(i));
                     if(cmp < 0){
                         this.keys.add(i,k);
+                        this.child.add()
                         this.nkeys++;
                         break;
                     } 
@@ -67,17 +68,21 @@ public class Bplustree {
             }
         }
 
+        // internalノードでの分割
         void split(){
             int j = HALF_MAX_CHILD - 1; // key[j]を親ノードに挿入、他を分割
             InteriorNode l = this;
             InteriorNode r = new InteriorNode();
             r.keys.addAll(l.keys.subList(j+1, MAX_CHILD));
             r.child.addAll(l.child.subList(j+1, MAX_CHILD+1));
-            
-            if(l.parent != null){
+            r.nkeys = r.keys.size();
+            if(l.parent != null){ //親があるとき
                 ((Bplustree.InteriorNode) l.parent).insert(l.keys.get(j));
                 l.keys.subList(j, MAX_CHILD).clear();
                 l.child.subList(j+1, MAX_CHILD+1).clear();
+                l.nkeys = l.keys.size();
+                r.parent = l.parent;
+                l.parent.chi
             }
             else{ // l = this = rootのとき
                 InteriorNode l2 = new InteriorNode(); 
@@ -85,6 +90,7 @@ public class Bplustree {
                 l2.child.addAll(l.child);
                 root = new InteriorNode();
                 root.keys.add(l2.keys.get(j));
+                root.nkeys++;
                 root.child.add(l2);
                 root.child.add(r);
                 l2.parent = root;
@@ -93,6 +99,8 @@ public class Bplustree {
 
         }
     }
+
+    
 
     // leaf node
     private class LeafNode extends Node {
@@ -107,16 +115,16 @@ public class Bplustree {
         // コンストラクタ
         private LeafNode() {
             nkeys = 0;
-            ArrayList<String> keys = new ArrayList<String>();
-            ArrayList<Object> data = new ArrayList<Object>();
+            this.keys = new ArrayList<String>();
+            this.data = new ArrayList<Object>();
         }
         // コンストラクタ
         private LeafNode(String key, Object x) {
-            ArrayList<String> keys = new ArrayList<String>();
-            ArrayList<Object> data = new ArrayList<Object>();
-            keys.add(key); 
-            data.add(x);
-            nkeys++; 
+            this.keys = new ArrayList<String>();
+            this.data = new ArrayList<Object>();
+            this.keys.add(key); 
+            this.data.add(x);
+            this.nkeys = 1; 
         }
         
 
@@ -158,7 +166,7 @@ public class Bplustree {
             }
         }
 
-        // 分割
+        // Leafノードでの分割
         void split(){
             int j = HALF_MAX_CHILD - 1; // key[j]を親ノードに挿入、他を分割
             LeafNode l = this;
@@ -231,6 +239,7 @@ public class Bplustree {
             root = new LeafNode(k,x);
         }
         else {
+            ((LeafNode)root).insert(k,x);
         }
     }
 
@@ -248,7 +257,6 @@ public class Bplustree {
     // 削除
     public boolean remove(String key){
         if (root == null) {
-            root = new LeafNode();
             return false;
         }
         else{
@@ -265,12 +273,11 @@ public class Bplustree {
     public static void main(String[] args){
         Bplustree tree = new Bplustree();
         tree.put("ABC",2);
-        tree.root.keys.add("ABE");
-        tree.root.nkeys++;
-        tree.root.keys.add("ABF");
-        tree.root.nkeys++;
+        tree.put("ABD", 3);
+        tree.put("ABF",4);
+        tree.put("ABE",5);
         String a = tree.root.keys.get(0);
         System.out.println("keys:" + tree.root.keys);
-        System.out.println("ABE index is:" + tree.root.keyindex("ABF"));
+        System.out.println("ABF index is:" + tree.root.keyindex("ABF"));
     }
 } 
