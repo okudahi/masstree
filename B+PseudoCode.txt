@@ -1,0 +1,21 @@
+LeafNodeでの分割
+split(node n, key k){
+    n1 = new leafnode;
+    kを挿入しながらnとn1でキーを分ける;
+    while(true){
+        if(n.parent = null){
+            内部ノードp(nとn1を子に持つ)を生成;
+            return;
+        }
+        p = n.parent();
+        else if(pが満杯でない){
+            n1をpに挿入
+            return;
+        }
+        else(pが満杯){
+            内部ノードp1を生成;
+            n1を挿入しながらpとp1でキーを分ける;
+            n = p;
+            n1 = p1;
+        }
+    }
