@@ -1,3 +1,6 @@
+final private static int MAX_CHILD = 5;
+final private static int MAX_KEYS = MAX_CHILD - 1;
+final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
 B+tree tree = new B+tree;
 
 int Iskeyexist(String k){ //　ノードにキーkがあるときはそのインデックス、ないときは-1を返す
@@ -76,23 +79,57 @@ void insert(key k, Object value){
 }
 
 LeafNodeでの分割
-split(node n, key k){
-    n1 = new leafnode;
-    kを挿入しながらnとn1でキーを分ける;
-    while(true){
-        if(n.parent = null){
-            内部ノードp(nとn1を子に持つ)を生成;
-            return;
+split(key k){
+    LeafNode l = this;
+    LeafNode r = new LeafNode;
+    int ki = this.keyindex(k);
+    lとrでkeyとdataを分配
+    
+    if(this == root){
+        中間ノードを作ってそれをrootにする
+    }
+    else{
+        this.parent.interior_insert(r.keys[0])
+    }
+}
+
+interior_insert(key k){
+    if(this.nkeys < MAX_KEYS){ // 余裕がある場合
+        int i;
+        for(i = this.nkeys; i > 0; i--){ // iはnkeysから1まで
+            int cmp = k.compareTo(t.keys[i-1]);
+            if(cmp < 0){ // k < keys[i-1]
+                this.keys[i] = this.keys[i-1]; // 右にずらす
+                this.data[i] = this.data[i-1];
+            } 
+            else{ // k > keys[i-1]
+                this.keys[i] = k;
+                this.data[i] = x;
+                this.nkeys++; // 空いたところに挿入
+                break;
+            }
         }
-        p = n.parent();
-        else if(pが満杯でない){
-            n1をpに挿入
-            return;
-        }
-        else(pが満杯){
-            内部ノードp1を生成;
-            n1を挿入しながらpとp1でキーを分ける;
-            n = p;
-            n1 = p1;
+        if(i == 0){ // k < keys[0]
+            this.keys[0] = k; // 左端に挿入
+            this.data[0] = x;
+            this.nkeys++;
         }
     }
+    else{ // ノードが溢れるとき
+        this.interior_split(k); // 分割
+    }
+}
+
+interior_split(key k){
+    InteriorNode l = this;
+    InteriorNode r = new InteriorNode;
+    int ki = this.keyindex(k);
+    lとrでkeyとchildを分配
+
+    if(this == root){
+        中間ノードを作ってそれをrootにする
+    }
+    else{
+        this.parent.interior_insert(j)
+    }
+}
