@@ -32,6 +32,12 @@ public class Bplustree {
         }
     }
 
+    class SplitRequest{
+        int borderkey;
+        Node l;
+        Node r;
+    }
+
     //interior node
     private class InteriorNode extends Node {
         // 部分木
@@ -40,8 +46,8 @@ public class Bplustree {
         // コンストラクタ
         private InteriorNode() {
             this.nkeys = 0;
-            this.keys = new String[MAX_KEYS];
-            this.childs = new Node[MAX_CHILD];
+            this.keys = new String[MAX_KEYS + 1];
+            this.childs = new Node[MAX_CHILD + 1];
         }
 
         // internalノードへのキーkの挿入
@@ -68,6 +74,9 @@ public class Bplustree {
                 this.split(); // 分割
             }
         }
+
+        
+
 
         // internalノードでの分割
         void split(){
@@ -116,13 +125,13 @@ public class Bplustree {
         // コンストラクタ(空のLeafNode)
         private LeafNode() {
             nkeys = 0;
-            this.keys = new String[MAX_KEYS];
-            this.data = new Object[MAX_KEYS];
+            this.keys = new String[MAX_KEYS + 1];
+            this.data = new Object[MAX_KEYS + 1];
         }
         // コンストラクタ(要素が一つ入ったLeafNode)
         private LeafNode(String key, Object x) {
-            this.keys = new String[MAX_KEYS];
-            this.data = new Object[MAX_KEYS];
+            this.keys = new String[MAX_KEYS + 1];
+            this.data = new Object[MAX_KEYS + 1];
             this.keys[0] = key; 
             this.data[0] = x;
             this.nkeys = 1; 
