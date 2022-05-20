@@ -25,8 +25,8 @@ public class MassTree {
         // コンストラクタ
         private InteriorNode() {
             nkeys = 0;
-            List<String> keyslices = new ArrayList<String>();
-            List<Node> child = new ArrayList<Node>(1);
+            this.keyslices = new ArrayList<String>();
+            this.child = new ArrayList<Node>(1);
         }
         
         // internalノードへの挿入
@@ -54,7 +54,7 @@ public class MassTree {
         // コンストラクタ
         private BorderNode() {
             nkeys = 0;
-            List<String> keyslices = new ArrayList<String>();
+            this.keyslices = new ArrayList<String>();
         }
         // コンストラクタ
         BorderNode(String key, Object x) {

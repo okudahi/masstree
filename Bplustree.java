@@ -20,7 +20,7 @@ public class Bplustree {
             }
             return -1;
         }
-        int keyindex(String k){ //　ノードが入るべきindexを返す
+        int keyindex(String k){ //　キーkが入るべきindexを返す
             int i;
             for(i = 0; i < this.nkeys; i++){
                 int cmp = k.compareTo(this.keys[i]); 

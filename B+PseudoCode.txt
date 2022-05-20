@@ -1,3 +1,80 @@
+B+tree tree = new B+tree;
+
+int Iskeyexist(String k){ //　ノードにキーkがあるときはそのインデックス、ないときは-1を返す
+    for(int i = 0; i < this.nkeys; i++){
+        if(this.keys[i] == k){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int keyindex(String k){ //　kが入るべきindexを返す
+    int i;
+    for(i = 0; i < this.nkeys; i++){
+        int cmp = k.compareTo(this.keys[i]); 
+        if(cmp < 0){
+            break;
+        } // k < keys[i]
+    }
+    return i;
+}
+
+// 検索
+Object get(key k){
+    node target t = tree.root;
+    while(tが内部ノード){
+        int i = t.keyindex(k);
+        t = t.child[i];
+    }
+    // tが葉ノード
+    for(int i = 0; i < nkeys; i++){
+        if(t.keys[i] == k){
+            return t.data[i];
+        }
+    }
+    return null;
+}
+
+// 挿入
+void insert(key k, Object value){
+    node t = tree.root;
+    while(tが内部ノード){
+        int i = t.keyindex(k);
+        t = t.child[i];
+    }
+    // tはkが入るべき葉ノード
+    int ki = t.Iskeyexist(k)
+    if (ki >= 0){
+        t.data[ki] = value; // 値の書き換え
+    }
+    else if(t.nkeys < MAX_KEYS){ // key(k)がまだない、かつ余裕がある場合
+        int i;
+        for(i = t.nkeys; i > 0; i--){ // iはnkeysから1まで
+            int cmp = k.compareTo(t.keys[i-1]);
+            if(cmp < 0){ // k < keys[i-1]
+                t.keys[i] = t.keys[i-1]; // 右にずらす
+                t.data[i] = t.data[i-1];
+            } 
+            else{ // k > keys[i-1]
+                t.keys[i] = k;
+                t.data[i] = x;
+                t.nkeys++; // 空いたところに挿入
+                break;
+            }
+        }
+        if(i == 0){ // k < keys[0]
+            t.keys[0] = k; // 左端に挿入
+            t.data[0] = x;
+            t.nkeys++;
+        }
+    }
+    else{ // ノードが溢れるとき
+        this.split(k); // 分割
+    }
+    
+}
+
 LeafNodeでの分割
 split(node n, key k){
     n1 = new leafnode;
