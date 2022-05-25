@@ -6,6 +6,7 @@ public class Bplustree {
 
     // Node
     public static abstract class Node {
+        int serial;
         int nkeys;
         String[] keys;
 
@@ -35,8 +36,7 @@ public class Bplustree {
         abstract public SplitRequest insert(String k, String v);
         abstract public String get(String k);
         abstract public StringBuffer getrange(String startKey, int n);
-        abstract public DeleteRequest delete(String k);
-        abstract public void show();
+        abstract public boolean delete(String k);
     }
 
     public static class SplitRequest{ // 分割の際に親にリクエストを送る
@@ -52,14 +52,6 @@ public class Bplustree {
         }
     }
 
-    public static class DeleteRequest{
-        boolean deleted;
-
-        DeleteRequest(boolean d){
-            this.deleted = d;
-        }
-    }
-
     //interior node
     public class InteriorNode extends Node {
         // 部分木
@@ -67,6 +59,7 @@ public class Bplustree {
 
         // コンストラクタ
         private InteriorNode() {
+            this.serial = serialNumber++;
             this.nkeys = 0;
             this.keys = new String[MAX_KEYS + 1];
             this.child = new Node[MAX_CHILD + 1];
@@ -75,7 +68,7 @@ public class Bplustree {
         // internalノードへのキーkの挿入
         public SplitRequest insert(String k, String v) {
             int ki = this.keyIndex(k);
-            SplitRequest req = this.child[ki].insert(k,v);
+            SplitRequest req = this.child[ki].insert(k,v); // 再帰
             if(req == null){ // 何もしない
                 return null;
             }
@@ -158,25 +151,46 @@ public class Bplustree {
         }
 
         // 削除:適切な位置の子をたどる
-        public DeleteRequest delete(String k){
+        public boolean delete(String k){
             int ki = this.keyIndex(k);
-            DeleteRequest req = this.child[ki].delete(k);
-            if(req.deleted == true){
-                this.keys[ki] = null;
+            boolean req = this.child[ki].delete(k); // 再帰
+            if(req == true){ // ki番目の子が消えた
+                if(ki > 0){ // 消えたのが左端じゃない
+                    InteriorNode t = this;
+                    for(int i = ki; i < this.nkeys; i++){ // 左詰め
+                        this.keys[i-1] = this.keys[i];
+                        this.child[i] = this.child[i+1];
+                    }
+                    this.keys[this.nkeys - 1] = null; // 右端のキーと子削除
+                    this.child[this.nkeys] = null;
+                    this.nkeys--;
+                    if(this.nkeys == 0){ // キーが一つもなくなったらノードを削除
+                        t = null; // ノードを削除
+                        return true; // 親に知らせる
+                    }
+                    return false; // nkeysが1以上のとき、そのまま終了
+                }
+                else{ // 消えたのが左端
+                    InteriorNode t = this;
+                    for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
+                        this.keys[i] = this.keys[i+1];
+                        this.child[i] = this.child[i+1];
+                    }
+                    this.child[this.nkeys-1] = this.child[this.nkeys];
+                    this.keys[this.nkeys - 1] = null; // 右端のキーと子削除
+                    this.child[this.nkeys] = null;
+                    this.nkeys--;
+                    if(this.nkeys == 0){ // キーが一つもなくなったらノードを削除
+                        t = null; // ノードを削除
+                        return true; // 親に知らせる
+                    }
+                    return false; // nkeysが1以上のとき、そのまま終了
+                }
 
             }
+            return false;
         }
 
-        public void show(){
-            for(int i = 0; i < this.nkeys; i++){
-                this.child[i].show();
-            }
-            for(int i = 0; i < this.nkeys; i++){
-                System.out.println(this.keys[i]);
-                System.out.println("nkeys = " + this.nkeys);
-            }
-
-        }
     }
 
     
@@ -185,7 +199,7 @@ public class Bplustree {
     public static class LeafNode extends Node {
 
         // データ
-        Object[] data;
+        String[] data;
         // 左隣ノード
         LeafNode prev;
         // 右隣ノード
@@ -193,12 +207,14 @@ public class Bplustree {
 
         // コンストラクタ(空のLeafNode)
         public LeafNode() {
+            this.serial = serialNumber++;
             nkeys = 0;
             this.keys = new String[MAX_KEYS + 1];
             this.data = new String[MAX_KEYS + 1];
         }
         // コンストラクタ(要素が一つ入ったLeafNode)
         public LeafNode(String key, String x) {
+            this.serial = serialNumber++;
             this.keys = new String[MAX_KEYS + 1];
             this.data = new String[MAX_KEYS + 1];
             this.keys[0] = key; 
@@ -211,6 +227,7 @@ public class Bplustree {
             int ki = this.isKeyExist(k);
             if (ki >= 0){ // key(k)がもうある(ki番目に一致)
                 this.data[ki] = v; // データの置き換え
+                System.out.println("the key " + k +  " already exists: updated the value");
                 return null;
             }
             else{ // key(k)がまだない場合
@@ -234,8 +251,10 @@ public class Bplustree {
                     this.nkeys++;
                 }
                 if(this.nkeys > MAX_KEYS){
+                    System.out.println("the key " + k +  " is inserted with split");
                     return this.split();
                 }
+                System.out.println("the key " + k +  " is inserted");
                 return null;
             }
         }
@@ -256,6 +275,7 @@ public class Bplustree {
             String borderKey = r.keys[0];
             l.next = r;
             r.prev = l;
+
             return new SplitRequest(borderKey, l, r);
         }
 
@@ -273,7 +293,7 @@ public class Bplustree {
             int ki = this.isKeyExist(startKey);
             StringBuffer vals = new StringBuffer();
             if (ki < 0){ // キーkが無い
-                vals.append("key not found");
+                vals.append("the key" + startKey +  "not found");
                 return vals;
             }
             for(int i =  ki; i < this.nkeys; i++){
@@ -313,50 +333,49 @@ public class Bplustree {
             if(this.next != null){
                 return this.next.getrangeContinue(vals, n);
             }
-            return vals; // まだ指定した数に達していないがもうキーがない
+            vals.append("(end of keys)"); // まだ指定した数に達していないがもうキーがない
+            return vals; 
         }
 
         // 削除
-        public DeleteRequest delete(String k){
+        public boolean delete(String k){
             int ki = this.isKeyExist(k);
             LeafNode t = this;
-            if (ki >= 0){ // key(k)がもうある(ki番目に一致)
-                t.keys[ki] = null;
-                t.data[ki] = null; // データの削除
-                t.nkeys--;
-                if(nkeys == 0){ // キーが一つもなくなったら削除
+            if (ki >= 0){ // key(k)がもうある(ki番目に一致)とき、削除
+                for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
+                    this.keys[i] = this.keys[i+1];
+                    this.data[i] = this.data[i+1];
+                }
+                this.keys[this.nkeys] = null; // 右端のキーと値削除
+                this.data[this.nkeys] = null;
+                this.nkeys--;
+                System.out.println("the key " + k + " is deleted");
+                if(nkeys == 0){ // キーが一つもなくなったらノードを削除
                     if(t.next != null && t.prev != null){
                         t.prev.next = t.next;
                         t.next.prev = t.prev; // リーフノード同士のポインタを修正
                     }
-                    t = null;
-                    return new DeleteRequest(true);
+                    t = null; // ノードを削除
+                    return true; // 親に知らせる
                 }
-                return new DeleteRequest(false);
+                return false; // nkeysが1以上のとき、そのまま終了
             }
-            for(int i = )
-            else{ // key(k)がまだない場合
-                return new DeleteRequest(false);
+            else{ // key(k)がまだない場合、何もしない
+                System.out.println("The key is already deleted");
+                return false;
             }
         }
 
-        public void show(){ // 木の表示
-            for(int i = 0; i < this.nkeys; i++){
-                System.out.println(this.keys[i]);
-                System.out.println("this is LeafNode");
-                System.out.println("nkeys = " + this.nkeys);
-            }
-
-        }
     }
 
 
     // 挿入
     void insert(String k, String v){ // tree
-        Node t = this.root;
-        t.insert(k, v);
+        this.root.insert(k, v);
     }
 
+    // ノード番号
+    private static int serialNumber = 0;
 
     // Bplustreeの根
     private Node root;
@@ -369,15 +388,15 @@ public class Bplustree {
     // get(printする)
     public void getPrint(String k){
         if (this.root == null){
-            System.out.println("The tree is empty.");
+            System.out.println("the tree is empty.");
             return;
         }
         String val = this.root.get(k);
         if(val == null){
-            System.out.println("The key is not in the tree.");
+            System.out.println("the key is not in the tree");
             return;
         }
-        System.out.println(val);
+        System.out.println("key:" + k + ",value:" + val);
     }
 
     // get(値を返す)
@@ -397,9 +416,9 @@ public class Bplustree {
         else {
             SplitRequest req = root.insert(k,x);
             if (req == null) {
-                // do nothing
+                // 何もしない
             } else {
-                // split occurs
+                // 分割する
                 InteriorNode newRoot = new InteriorNode();
                 newRoot.keys[0] = req.borderKey;
                 newRoot.child[0] = req.left;
@@ -413,21 +432,51 @@ public class Bplustree {
     // 削除
     public void delete(String key){
         if (root == null) {
-            return;
+            System.out.println("the tree is empty");
         }
         else{
-            this.root.delete(key);
+            boolean req = this.root.delete(key);
+            if (req == false){
+
+            } else {
+                Node t = root;
+                if(t instanceof InteriorNode){
+                    root = ((InteriorNode)t).child[0];
+                    t = null;
+                }
+                else{
+                    root = null;
+                }
+            }
         }
     }
 
-    public void show(){
-        this.root.show();
+    private static String makedot(Node t){ // 可視化用dotファイル用
+        String text = "";
+        if(t != null){
+            text += "node" + t.serial + "[label = \"";
+            for(int i = 0; i < t.nkeys; i++){
+                text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+            }
+            text += "<f" + t.nkeys + ">\"];\n";
+            if(t instanceof InteriorNode){
+                for(int i =0; i < t.nkeys+1; i++){
+                    text += makedot(((InteriorNode)t).child[i]);
+                    text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
+                }
+            }
+        }   
+        return text;
+    }
+
+    public String makedot(){
+        return makedot(this.root);
     }
 
     //範囲検索
     public void getrange(String startKey, Integer n){
         if (this.root == null){
-            System.out.println("The tree is empty.");
+            System.out.println("the tree is empty");
         }
         StringBuffer vals = this.root.getrange(startKey,n);
         System.out.println(vals.toString());
