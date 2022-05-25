@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bplustree {
 
     final private static int MAX_CHILD = 5;
@@ -35,7 +38,7 @@ public class Bplustree {
 
         abstract public SplitRequest insert(String k, String v);
         abstract public String get(String k);
-        abstract public StringBuffer getrange(String startKey, int n);
+        abstract public int getrange(String startKey, String[]vals, int startIndex, int n);
         abstract public boolean delete(String k);
     }
 
@@ -145,9 +148,9 @@ public class Bplustree {
         }
 
         // 範囲検索:適切な位置の子をたどる
-        public StringBuffer getrange(String startKey, int n){
+        public int getrange(String startKey, String[]vals, int startIndex, int n){
             int ki = this.keyIndex(startKey);
-            return this.child[ki].getrange(startKey, n);
+            return this.child[ki].getrange(startKey, vals, startIndex, n);
         }
 
         // 削除:適切な位置の子をたどる
@@ -161,7 +164,7 @@ public class Bplustree {
                         this.keys[i-1] = this.keys[i];
                         this.child[i] = this.child[i+1];
                     }
-                    this.keys[this.nkeys - 1] = null; // 右端のキーと子削除
+                    this.keys[this.nkeys-1] = null; // 右端のキーと子削除
                     this.child[this.nkeys] = null;
                     this.nkeys--;
                     if(this.nkeys == 0){ // キーが一つもなくなったらノードを削除
@@ -177,7 +180,7 @@ public class Bplustree {
                         this.child[i] = this.child[i+1];
                     }
                     this.child[this.nkeys-1] = this.child[this.nkeys];
-                    this.keys[this.nkeys - 1] = null; // 右端のキーと子削除
+                    this.keys[this.nkeys-1] = null; // 右端のキーと子削除
                     this.child[this.nkeys] = null;
                     this.nkeys--;
                     if(this.nkeys == 0){ // キーが一つもなくなったらノードを削除
@@ -289,52 +292,25 @@ public class Bplustree {
         }
 
         // 範囲検索:一つ目
-        public StringBuffer getrange(String startKey, int n){
-            int ki = this.isKeyExist(startKey);
-            StringBuffer vals = new StringBuffer();
+        public int getrange(String startKey, String[] vals, int startIndex, int n){
+            int ki = this.keyIndex(startKey);
             if (ki < 0){ // キーkが無い
                 vals.append("the key" + startKey +  "not found");
                 return vals;
             }
-            for(int i =  ki; i < this.nkeys; i++){
-                if(n > 0){
-                    vals.append("key:");
-                    vals.append(this.keys[i]);
-                    vals.append(",value:");
-                    vals.append(this.data[i]);
-                    vals.append("  ");
-                    n--;
-                }
-                else{ // 指定した数に達した
-                    return vals;
-                }
-            }
-            if(this.next != null){
-                return this.next.getrangeContinue(vals, n);
-            }
-            return vals;
+            return getrangeContinue(ki,vals,startIndex,n);
         }
 
         // 範囲検索:二個目以降
-        public StringBuffer getrangeContinue(StringBuffer vals, int n){
-            for(int i =  0; i < this.nkeys; i++){
-                if(n > 0){
-                    vals.append("key:");
-                    vals.append(this.keys[i]);
-                    vals.append(",value:");
-                    vals.append(this.data[i]);
-                    vals.append("  ");
-                    n--;
-                }
-                else{ // 指定した数に達した
-                    return vals;
-                }
+        public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
+            int c = Math.min(nkeys-ki,n);
+            for(int i =  0; i < c; i++){
+                    vals[startIndex+i]= data[ki+i];
             }
-            if(this.next != null){
-                return this.next.getrangeContinue(vals, n);
+            if(n > c && next != null){
+                return next.getrangeContinue(0, vals, startIndex+c, n-c) + c;
             }
-            vals.append("(end of keys)"); // まだ指定した数に達していないがもうキーがない
-            return vals; 
+            return c;
         }
 
         // 削除
@@ -474,12 +450,17 @@ public class Bplustree {
     }
 
     //範囲検索
-    public void getrange(String startKey, Integer n){
+    public List<String> getrange(String startKey, int n){
         if (this.root == null){
             System.out.println("the tree is empty");
         }
-        StringBuffer vals = this.root.getrange(startKey,n);
-        System.out.println(vals.toString());
+        String[] vals = new String[n];
+        int nfound = this.root.getrange(startKey,vals,0,n);
+        ArrayList<String> l = new ArrayList<String>(nfound);
+        for(int i = 0; i < nfound; i++){
+            l.add(vals[i]);
+        }
+        return l;
     }
 
 
