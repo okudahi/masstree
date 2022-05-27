@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Bplustree {
 
@@ -341,7 +343,7 @@ public class Bplustree {
                 return null; // nkeysが1以上のとき、そのまま終了
             }
             else{ // key(k)がまだない場合、何もしない
-                System.out.println("The key is already deleted");
+                System.out.println("The key " + k + " is already deleted");
                 return null;
             }
         }
@@ -449,8 +451,16 @@ public class Bplustree {
         return text;
     }
 
-    public String makedot(){
-        return makedot(this.root);
+    public void makeDotFile(){ // 可視化用dotファイル出力
+        try{
+            FileWriter fw = new FileWriter("BPTshow.dot");
+            fw.write("digraph G {\n  node [shape = record,height=.1];\n");
+            fw.write(makedot(this.root));
+            fw.write("}");
+            fw.close();
+        } catch (IOException ex){
+            ex.printStackTrace();
+        }
     }
 
     //範囲検索
