@@ -148,7 +148,7 @@ public class Bplustree {
         }
 
         // 範囲検索:適切な位置の子をたどる
-        public int getrange(String startKey, String[]vals, int startIndex, int n){
+        public int getrange(String startKey, String[] vals, int startIndex, int n){
             int ki = this.keyIndex(startKey);
             return this.child[ki].getrange(startKey, vals, startIndex, n);
         }
@@ -291,21 +291,17 @@ public class Bplustree {
             return this.data[ki];
         }
 
-        // 範囲検索:一つ目
+        // 範囲検索:開始
         public int getrange(String startKey, String[] vals, int startIndex, int n){
             int ki = this.keyIndex(startKey);
-            if (ki < 0){ // キーkが無い
-                vals.append("the key" + startKey +  "not found");
-                return vals;
-            }
-            return getrangeContinue(ki,vals,startIndex,n);
+            return getrangeContinue(ki, vals, startIndex, n);
         }
 
-        // 範囲検索:二個目以降
+        // 範囲検索:処理
         public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
-            int c = Math.min(nkeys-ki,n);
+            int c = Math.min(nkeys-ki, n); // 読み取る値の数
             for(int i =  0; i < c; i++){
-                    vals[startIndex+i]= data[ki+i];
+                    vals[startIndex+i] = data[ki+i]; 
             }
             if(n > c && next != null){
                 return next.getrangeContinue(0, vals, startIndex+c, n-c) + c;
