@@ -1,14 +1,44 @@
 import java.util.ArrayList;
 import java.util.List;
+
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.Math;
 
 public class MassTreeNode {
 
-    final private static int MAX_CHILD = 5;
+    final private static int MAX_CHILD = 16;
     final private static int MAX_KEYS = MAX_CHILD - 1;
     final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
 
+    public interface MassTreeVal {
+        String getSuffix();
+        String getData();
+    }
+
+    public class NextLayerMassTreeVal implements MassTreeVal {
+        MassTreeNode nextLayer;
+        String data;
+        public String getSuffix() { return ""; }
+        public String getData() { return data; }
+        public MassTreeNode getNextLayer() { return nextLayer; }
+
+        NextLayerMassTreeVal(){
+            this.nextLayer = new MassTreeNode();
+        }
+    }
+
+    public class SingleMassTreeVal implements MassTreeVal {
+        String suffix;
+        String data;
+        public String getSuffix() { return ""; }
+        public String getData() { return data; }
+
+        SingleMassTreeVal(String val, String suf){
+            this.suffix  = suf;
+            this.data = val;
+        }
+    }
     // Node
     public static abstract class Node {
         int serial;
@@ -39,8 +69,8 @@ public class MassTreeNode {
         }
 
         abstract public SplitRequest insert(String k, String v);
-        abstract public String get(String k);
-        abstract public int getrange(String startKey, String[]vals, int startIndex, int n);
+        abstract public MassTreeVal get(String k);
+        abstract public int getrange(String startKey, String[] vals, int startIndex, int n);
         abstract public DeleteRequest delete(String k);
     }
 
@@ -66,24 +96,7 @@ public class MassTreeNode {
         }
     }
 
-    public static class MassTreeVal{ // 削除の際に親にリクエストを送る
-        boolean existNextLayer; 
-        Object nextLayerRoot_or_suffix; // existNextLayer == true→nextLayerRoot, existNextLayer == false→suffix
-        String data; // value
-
-        // コンストラクタ
-        
-        MassTreeVal(String suffix){ 
-            this.existNextLayer = false;
-            this.nextLayerRoot_or_suffix = suffix;
-        }
-        
-        MassTreeVal(Node nextLayerRoot){ 
-            this.existNextLayer = true;
-            this.nextLayerRoot_or_suffix = nextLayerRoot;
-        }
-
-    }
+    
 
     //interior node
     public class InteriorNode extends Node {
@@ -172,7 +185,7 @@ public class MassTreeNode {
         }
 
         // 検索:適切な位置の子をたどる
-        public String get(String k){
+        public MassTreeVal get(String k){
             int ki = this.keyIndex(k);
             return this.child[ki].get(k);
         }
@@ -230,7 +243,7 @@ public class MassTreeNode {
     public static class BorderNode extends Node {
 
         // データ
-        String[] data;
+        MassTreeVal[] data;
         // 左隣ノード
         BorderNode prev;
         // 右隣ノード
@@ -241,15 +254,15 @@ public class MassTreeNode {
             this.serial = serialNumber++;
             nkeys = 0;
             this.keys = new String[MAX_KEYS + 1];
-            this.data = new String[MAX_KEYS + 1];
+            this.data = new MassTreeVal[MAX_KEYS + 1];
         }
         // コンストラクタ(要素が一つ入ったLeafNode)
         public BorderNode(String key, String x) {
             this.serial = serialNumber++;
             this.keys = new String[MAX_KEYS + 1];
-            this.data = new String[MAX_KEYS + 1];
+            this.data = new MassTreeVal[MAX_KEYS + 1];
             this.keys[0] = key; 
-            this.data[0] = x;
+            this.data[0].data = x;
             this.nkeys = 1; 
         }
 
@@ -312,7 +325,7 @@ public class MassTreeNode {
         }
 
         // 検索
-        public String get(String k){
+        public MassTreeVal get(String k){
             int ki = this.isKeyExist(k);
             if (ki < 0){ // キーkが無い
                 return null;
@@ -378,7 +391,7 @@ public class MassTreeNode {
     // ノード番号
     private static int serialNumber = 0;
 
-    // Bplustreeの根
+    // MassTreeNodeの根
     private Node root;
 
     // コンストラクタ
@@ -401,14 +414,23 @@ public class MassTreeNode {
     }
 
     // get(値を返す)
-    public String get(String k){
-        if (this.root == null){
-            return null;
+    String get(String key){
+            String keyslice = key.substring(0,Math.min(8, key.length())); //8文字で切る
+            MassTreeVal val = this.root.get(keyslice);
+            if(val instanceof NextLayerMassTreeVal){
+                return ((MassTreeNode.NextLayerMassTreeVal) val).getNextLayer().get(key.substring(8)); // 次の8文字で検索
+            }
+            else{
+                if(val.getSuffix() == key.substring(8)){
+                    return val.data;
+                }
+                else{
+                    return null;
+                }
+            }
         }
-        String val = this.root.get(k);
-        return val;
     }
-
+    
     // 挿入
     public void put(String k, String x){
         if (root == null) {
