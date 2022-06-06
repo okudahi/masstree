@@ -1,0 +1,56 @@
+digraph G {
+  node [shape = record,height=.1];
+node3[label = "<f0> |15|<f1>"];
+node0[label = "<f0> 10|<f1> 11|<f2> 12|<f3> 13|<f4> 14"];
+node11[label = "<f0> 107|<f1> 491|<f2> 960"];
+"node0":f0 -> "node11"[color = red];
+node10[label = "<f0> 076|<f1> 192|<f2> 236|<f3> 273|<f4> 467|<f5> 528|<f6> 71"];
+node16[label = "<f0> 0|<f1> 6"];
+"node10":f6 -> "node16"[color = red];
+"node0":f1 -> "node10"[color = red];
+node18[label = "<f0> |23|<f1>"];
+node8[label = "<f0> 108|<f1> 130|<f2> 188"];
+"node18":f0 -> "node8"
+node17[label = "<f0> 232|<f1> 308|<f2> 587|<f3> 626|<f4> 645|<f5> 987"];
+"node18":f1 -> "node17"
+"node0":f2 -> "node18"[color = red];
+node5[label = "<f0> 248|<f1> 358|<f2> 50|<f3> 759|<f4> 868|<f5> 945|<f6> 969"];
+node21[label = "<f0> 2|<f1> 3"];
+"node5":f2 -> "node21"[color = red];
+"node0":f3 -> "node5"[color = red];
+node20[label = "<f0> |35|<f1>"];
+node1[label = "<f0> 004|<f1> 069|<f2> 246|<f3> 252"];
+"node20":f0 -> "node1"
+node19[label = "<f0> 35|<f1> 578|<f2> 624|<f3> 641|<f4> 728|<f5> 980|<f6> 997"];
+node26[label = "<f0> 6|<f1> 8"];
+"node19":f0 -> "node26"[color = red];
+"node20":f1 -> "node19"
+"node0":f4 -> "node20"[color = red];
+"node3":f0 -> "node0"
+node2[label = "<f0> 15|<f1> 16|<f2> 17|<f3> 18|<f4> 19"];
+node23[label = "<f0> |30|<f1>"];
+node9[label = "<f0> 025|<f1> 129|<f2> 194|<f3> 227|<f4> 234"];
+"node23":f0 -> "node9"
+node22[label = "<f0> 309|<f1> 389|<f2> 473|<f3> 485|<f4> 985"];
+"node23":f1 -> "node22"
+"node2":f0 -> "node23"[color = red];
+node4[label = "<f0> 583|<f1> 687|<f2> 706|<f3> 938"];
+"node2":f1 -> "node4"[color = red];
+node13[label = "<f0> |71|<f1>"];
+node6[label = "<f0> 135|<f1> 226|<f2> 351|<f3> 486"];
+"node13":f0 -> "node6"
+node12[label = "<f0> 718|<f1> 76|<f2> 775|<f3> 845|<f4> 854|<f5> 935"];
+node15[label = "<f0> 4|<f1> 5"];
+"node12":f1 -> "node15"[color = red];
+"node13":f1 -> "node12"
+"node2":f2 -> "node13"[color = red];
+node14[label = "<f0> 168|<f1> 216|<f2> 264|<f3> 369|<f4> 474|<f5> 851"];
+"node2":f3 -> "node14"[color = red];
+node25[label = "<f0> |38|<f1>"];
+node7[label = "<f0> 241|<f1> 299|<f2> 311|<f3> 322"];
+"node25":f0 -> "node7"
+node24[label = "<f0> 385|<f1> 566|<f2> 612|<f3> 697|<f4> 712"];
+"node25":f1 -> "node24"
+"node2":f4 -> "node25"[color = red];
+"node3":f1 -> "node2"
+}

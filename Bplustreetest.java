@@ -16,14 +16,14 @@ public class Bplustreetest {
 
     public static void main(String[] args){
         Bplustree tree = new Bplustree();
-        int[] intArray0 = new Random().ints(100, 1000, 10000).toArray();
-        int[] intArray1 = new Random().ints(90, 0, 99).toArray();
-        for(int i = 0; i < intArray0.length; i++){
-            tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
-        }
-        for(int i = 0; i < intArray1.length; i++){
-            tree.delete(String.valueOf(intArray0[intArray1[i]]));
-        }
+        tree.put("C", "C");
+        tree.put("D", "D");
+        tree.put("CD", "CD");
+        // int[] intArray0 = new Random().ints(100, 1000, 10000).toArray();
+        // int[] intArray1 = new Random().ints(90, 0, 99).toArray();
+        // for(int i = 0; i < intArray0.length; i++){
+        //     tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
+        // }
         // for (int i = 99; i > 74; i--){
         //     tree.put(String.valueOf(i),String.valueOf(i));
         // }
@@ -33,9 +33,6 @@ public class Bplustreetest {
         // for (int i = 1; i < 70; i++){
         //     tree.delete(String.valueOf(i));
         // }
-        tree.makeDotFile();
-        tree.delete("50");
-        tree.delete("51");
         tree.makeDotFile();
         // assertEqual(tree.root.nkeys, 0);
         List<String> getr = tree.getrange("10",50);

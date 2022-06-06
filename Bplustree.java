@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Bplustree {
 
-    final private static int MAX_CHILD = 16;
+    final private static int MAX_CHILD = 3;
     final private static int MAX_KEYS = MAX_CHILD - 1;
     final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
 
@@ -436,12 +436,19 @@ public class Bplustree {
     private static String makedot(Node t){ // 可視化用dotファイル用
         String text = "";
         if(t != null){
-            text += "node" + t.serial + "[label = \"";
-            for(int i = 0; i < t.nkeys; i++){
-                text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+            if(t instanceof LeafNode){
+                text += "node" + t.serial + "[label = \"";
+                for(int i = 0; i < t.nkeys - 1; i++){
+                    text += "<f" + i + "> "+ t.keys[i] + "|";
+                }
+                text += "<f" + t.nkeys + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
             }
-            text += "<f" + t.nkeys + ">\"];\n";
             if(t instanceof InteriorNode){
+                text += "node" + t.serial + "[label = \"";
+                for(int i = 0; i < t.nkeys; i++){
+                    text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+                }
+                text += "<f" + t.nkeys + ">\"];\n";
                 for(int i = 0; i < t.nkeys + 1; i++){
                     text += makedot(((InteriorNode)t).child[i]);
                     text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
