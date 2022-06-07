@@ -27,15 +27,22 @@ public class MassTree {
     // 挿入
     public void put(String k, String x){
         this.rootTree.insert(k, x);
-        
     }
 
     // 削除
+    public void delete(String k){
+        this.rootTree.delete(k);
+    }
 
-    //範囲検索
-    // public Object getrange(String key, Integer n){
+    // 範囲検索
+    public Object getrange(String k, Integer n){
+        return this.rootTree.getrange(k, n);
+    }
 
-    // }
+    // dotファイル出力
+    public void makeDotFile(){
+        this.rootTree.makeDotFile();
+    }
 
     public static class MassTreeNode {
 
@@ -51,7 +58,8 @@ public class MassTree {
             int nkeys;
             String[] keys;
     
-            int  isKeyExist(String k){ //　ノードにキーkがあるときはそのインデックス、ないときは-1を返す
+            //　ノードにキーkがあるときはそのインデックス、ないときは-1を返す
+            int  isKeyExist(String k){ 
                 for(int i = 0; i < this.nkeys; i++){
                     if(this.keys[i].equals(k)){
                         return i;
@@ -62,8 +70,8 @@ public class MassTree {
                 }
                 return -1;
             }
-    
-            int keyIndex(String k){ //　キーkが入るべきindexを返す
+            //　キーkが入るべきindexを返す
+            int keyIndex(String k){ 
                 int i;
                 for(i = 0; i < this.nkeys; i++){
                     int cmp = k.compareTo(this.keys[i]); 
@@ -76,12 +84,12 @@ public class MassTree {
     
             abstract public SplitRequest insert(String k, String v, String suf);
             abstract public MassTreeVal get(String k);
-            abstract public Object getOnInsert(String k);
-            // abstract public int getrange(String startKey, String[] vals, int startIndex, int n);
-            abstract public DeleteRequest delete(String k);
+            abstract public int getrange(String startKey, String[] vals, int startIndex, int n);
+            abstract public boolean delete(String k, String suf);
         }
-    
-        public static class SplitRequest{ // 分割の際に親にリクエストを送る
+        
+        // 分割の際に親にリクエストを送る
+        public static class SplitRequest{ 
             String borderKey; // 真ん中の値
             Node left; // 真ん中より左
             Node right; // 真ん中より右
@@ -94,19 +102,11 @@ public class MassTree {
             }
         }
     
-        public static class DeleteRequest{ // 削除の際に親にリクエストを送る
-            Node remainingChild; // 残った子ども
-    
-            // コンストラクタ
-            DeleteRequest(Node remChild){ 
-                this.remainingChild = remChild;
-            }
-        }
-    
         public interface MassTreeVal {
             String getSuffix();
         }
     
+        // nextLayer
         public static class NextLayerMassTreeVal implements MassTreeVal {
             MassTreeNode nextLayer;
             public String getSuffix() { return ""; }
@@ -117,6 +117,7 @@ public class MassTree {
             }
         }
     
+        // {data, suffix}
         public static class SingleMassTreeVal implements MassTreeVal {
             String suffix;
             String data;
@@ -129,7 +130,7 @@ public class MassTree {
             }
         }
     
-        //interior node
+        // interior node
         public class InteriorNode extends Node {
             // 部分木
             Node[] child;
@@ -157,11 +158,11 @@ public class MassTree {
                     for(i = nkeys; i > 0; i--){ // iはnkeysから1まで
     
                         int cmp = insertedKey.compareTo(this.keys[i-1]);
-                        if(cmp < 0){ // k < keys[i-1]
+                        if(cmp < 0){ // k < keys[i-1] 右にずらす
                             this.keys[i] = this.keys[i-1];
                             this.child[i+1] = this.child[i];
                         } 
-                        else{ // k > keys[i]
+                        else{ // k > keys[i] 空いたところに挿入
                             this.keys[i] = insertedKey;
                             this.child[i+1] = rchild;
                             this.child[i] = lchild;
@@ -220,27 +221,23 @@ public class MassTree {
                 int ki = this.keyIndex(k);
                 return this.child[ki].get(k);
             }
+
     
-            public Object getOnInsert(String k){
-                int ki = this.keyIndex(k);
-                return this.child[ki].getOnInsert(k);
+            // 範囲検索:適切な位置の子をたどる
+            public int getrange(String startKey, String[] vals, int startIndex, int n){
+                int ki = this.keyIndex(startKey);
+                return this.child[ki].getrange(startKey, vals, startIndex, n);
             }
     
-            // // 範囲検索:適切な位置の子をたどる
-            // public int getrange(String startKey, String[] vals, int startIndex, int n){
-            //     int ki = this.keyIndex(startKey);
-            //     return this.child[ki].getrange(startKey, vals, startIndex, n);
-            // }
-    
             // 削除:適切な位置の子をたどる
-            public DeleteRequest delete(String k){
+            public boolean delete(String k, String suf){
                 int ki = this.keyIndex(k);
-                DeleteRequest req = this.child[ki].delete(k); // 再帰
-                if (req == null){ // 子どもが消えてない→そのまま
-                    return null;
+                boolean req = this.child[ki].delete(k, suf); // 再帰
+                if (req == false){ // 子どもが消えない→そのまま
+                    return false;
                 }
-                else{ // 子どもが消えた
-                    if(req.remainingChild == null ){ // 消えたのがリーフノード
+                else{ // 子どもが消える
+                    if(this.nkeys > 0){ // キーが存在
                         if(ki > 0){ // 消えたのが左端じゃない
                             for(int i = ki; i < this.nkeys; i++){ // 左詰め
                                 this.keys[i-1] = this.keys[i];
@@ -260,15 +257,12 @@ public class MassTree {
                             this.child[this.nkeys] = null;
                             this.nkeys--;
                         }
-                        if(this.nkeys == 0){ // キーが一つもなくなったら唯一の子を返す
-                            return new DeleteRequest(this.child[0]);
-                        }
                     }
-                    else{ // 消えたのが内部ノード
-                        this.child[ki] = req.remainingChild;
+                    else{ // キーが存在しない 
+                        return true; // 子が一つもなくなったらDeleteRequestを返す
                     }
                 }
-                return null; // 子どもが消えてないとき、または削除後のnkeysが1以上のとき、そのまま終了
+                return false; // 子どもが消えてないとき、または削除後のnkeysが1以上のとき、そのまま終了
             }
     
         }
@@ -302,7 +296,7 @@ public class MassTree {
                 this.keys[0] = key.substring(0, Math.min(key.length(), LEN_KEYSLICE)); 
                 if(key.length() <= LEN_KEYSLICE) {this.data[0] = new SingleMassTreeVal(x,"");}
                 else{this.data[0] = new SingleMassTreeVal(x, key.substring(LEN_KEYSLICE));}
-                this.nkeys = 1; 
+                this.nkeys = 1;
             }
     
             // Borderノードへのキーk、データx、接尾辞sufの挿入
@@ -314,15 +308,15 @@ public class MassTree {
                         ((NextLayerMassTreeVal)val).getNextLayer().insert(suf, v);
                     }
                     else{ // val instanceof SingleMassTreeVal
-                        if(((SingleMassTreeVal)val).getSuffix() != suf){
+                        if(((SingleMassTreeVal)val).getSuffix().equals(suf)){ // keyが完全に一致→上書き
+                            ((SingleMassTreeVal)val).data = v;
+                        }
+                        else{ // suffixが違う→nextlayer作成
                             String suffix0 = ((SingleMassTreeVal)val).getSuffix(); // 元々あったsuffix
                             String val0 = ((SingleMassTreeVal)val).data; // 元々あったvalue
                             data[ki] = new NextLayerMassTreeVal();
                             ((NextLayerMassTreeVal)data[ki]).nextLayer.insert(suffix0, val0);
                             ((NextLayerMassTreeVal)data[ki]).nextLayer.insert(suf, v);
-                        }
-                        else{ // keyが完全に一致→上書き
-                            ((SingleMassTreeVal)val).data = v;
                         }
                     }
                     return null;
@@ -371,6 +365,9 @@ public class MassTree {
                 r.nkeys = MAX_KEYS - borderIndex + 1;
                 String borderKey = r.keys[0];
                 r.next = l.next;
+                if(r.next != null){
+                    r.next.prev = r;
+                }
                 l.next = r;
                 r.prev = l;
     
@@ -386,59 +383,92 @@ public class MassTree {
                 return this.data[ki];
             }
     
-            public Object getOnInsert(String k){
-                int ki = this.keyIndex(k);
-                if (ki < 0){ // キーkが無い
-                    return this;
-                }
-                return this.data[ki];
+        // 範囲検索:開始位置の検索
+        public int getrange(String startKey, String[] vals, int startIndex, int n){
+            int ki; // 開始インデックス
+            for(ki = 0; ki < this.nkeys; ki++){
+                int cmp = startKey.compareTo(this.keys[ki]); 
+                if(cmp <= 0){
+                    break;
+                } // k < keys[i]
             }
-    
-            //  // 範囲検索:開始
-            // public int getrange(String startKey, String[] vals, int startIndex, int n){
-            //     int ki = this.keyIndex(startKey);
-            //     return getrangeContinue(ki, vals, startIndex, n);
-            // }
-    
-            //  // 範囲検索:処理
-            // public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
-            //     int c = Math.min(nkeys-ki, n); // 読み取る値の数
-            //     for(int i =  0; i < c; i++){
-            //             vals[startIndex+i] = data[ki+i]; 
-            //     }
-            //     if(n > c && next != null){
-            //         return next.getrangeContinue(0, vals, startIndex+c, n-c) + c;
-            //     }
-            //     return c;
-            // }
+            return getrangeContinue(ki, vals, startIndex, n);
+        }
+
+        // 範囲検索:処理(this.data[ki]からmin(nkeys-ki,n)個をvals[startIndex]~に格納)
+        public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
+            int c = Math.min(nkeys-ki, n); // 読み取る値の数
+            for(int i =  0; i < c; i++){
+                    vals[startIndex+i] = null; // data[ki+i]
+            }
+            if(n > c && next != null){
+                return next.getrangeContinue(0, vals, startIndex+c, n-c) + c;
+            }
+            return c;
+        }
+
     
             // 削除
-            public DeleteRequest delete(String k){
+            public boolean delete(String k, String suf){
                 int ki = this.isKeyExist(k);
-                BorderNode t = this;
                 if (ki >= 0){ // key(k)がもうある(ki番目に一致)とき、削除
-                    for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
-                        this.keys[i] = this.keys[i+1];
-                        this.data[i] = this.data[i+1];
-                    }
-                    this.keys[this.nkeys] = null; // 右端のキーと値削除
-                    this.data[this.nkeys] = null;
-                    this.nkeys--;
-                    if(nkeys == 0){ // キーが一つもなくなったらノードを削除
-                        if(t.next != null && t.prev != null){
-                            t.prev.next = t.next;
-                            t.next.prev = t.prev; // リーフノード同士のポインタを修正
+                    MassTreeVal val = this.data[ki];
+                    if(val instanceof NextLayerMassTreeVal){
+                        boolean req = ((NextLayerMassTreeVal)val).getNextLayer().delete(suf);
+                        if(req == true){ // nextlayerが完全に空になった場合、このキーを削除
+                            for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
+                                this.keys[i] = this.keys[i+1];
+                                this.data[i] = this.data[i+1];
+                            }
+                            this.keys[this.nkeys] = null; // 右端のキーと値削除
+                            this.data[this.nkeys] = null;
+                            this.nkeys--;
+                            if(nkeys == 0){ // キーが一つもなくなったらノードを削除
+                                if(this.next != null && this.prev != null){ // リーフノード同士のポインタを修正
+                                    this.prev.next = this.next;
+                                    this.next.prev = this.prev;
+                                }
+                                else if(this.next != null){ // prev = null
+                                    this.next.prev = null;
+                                }
+                                else if(this.prev != null){ // next = null
+                                    this.prev.next = null;
+                                }
+                                return true; // 親に知らせる
+                            }
+                            return false; // nkeysが1以上のとき、そのまま終了
                         }
-                        t = null; // ノードを削除
-                        return new DeleteRequest(null); // 親に知らせる
+                        return false; // nextlayerが空にならなかったとき、終了
                     }
-                    return null; // nkeysが1以上のとき、そのまま終了
+                    else{ // val instanceof SingleMassTreeVal
+                        if(((SingleMassTreeVal)val).getSuffix().equals(suf)){ // suffixが一致した場合、削除
+                            for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
+                                this.keys[i] = this.keys[i+1];
+                                this.data[i] = this.data[i+1];
+                            }
+                            this.keys[this.nkeys] = null; // 右端のキーと値削除
+                            this.data[this.nkeys] = null;
+                            this.nkeys--;
+                            if(nkeys == 0){ // キーが一つもなくなったらノードを削除
+                                if(this.next != null && this.prev != null){ // リーフノード同士のポインタを修正
+                                    this.prev.next = this.next;
+                                    this.next.prev = this.prev;
+                                }
+                                else if(this.next != null){ // prev = null
+                                    this.next.prev = null;
+                                }
+                                else if(this.prev != null){ // next = null
+                                    this.prev.next = null;
+                                }
+                                return true; // 親に知らせる
+                            }
+                            return false; // nkeysが1以上のとき、そのまま終了
+                        }
+                        else {return false;} // suffixが不一致のとき、何もしない
+                    }
                 }
-                else{ // key(k)がまだない場合、何もしない
-                    return null;
-                }
+                else {return false;} // key(k)がまだない場合、何もしない
             }
-    
         }
     
     
@@ -470,7 +500,7 @@ public class MassTree {
             this.root = null;
         }
     
-        // get(値を返す)
+        // get(MassTreeValを返す)
         MassTreeVal get(String key){
             if(this.root == null){return null;}
             String keyslice = key.substring(0, Math.min(LEN_KEYSLICE, key.length())); // 8文字で切る
@@ -489,29 +519,25 @@ public class MassTree {
             }
         }
     
-        // 削除・・・リバランスしない(Masstree用)
-        public void delete(String key){
+        // 削除・・・リバランスしない
+        public boolean delete(String key){
             if (root == null) {
-                System.out.println("the tree is empty");
+                return false;
             }
             else{
-                DeleteRequest req = this.root.delete(key);
-                if (req == null){ // rootからnullが返ってきたとき、何もしない
-    
-                } else { // rootがなくなったとき、木の高さが1段減る
-                    Node t = root;
-                    if(t instanceof InteriorNode){
-                        root = req.remainingChild;
-                        t = null;
-                    }
-                    else{ // 木が空になる
-                        root = null;
-                    }
+                boolean req = this.root.delete(key.substring(0, Math.min(key.length(), LEN_KEYSLICE)), key.substring(Math.min(key.length(), LEN_KEYSLICE)));
+                if (req == false){ // rootからnullが返ってきたとき、何もしない
+                    return false;
+                }
+                else{ // rootがなくなったとき、木が空になる
+                    root = null;
+                    return true;
                 }
             }
         }
     
-        public static String makedot(Node t){ // 可視化用dotファイル用
+        // 可視化用dotファイル用
+        public static String makedot(Node t){ 
             String text = "";
             if(t != null){
                 if(t instanceof BorderNode){
@@ -520,7 +546,9 @@ public class MassTree {
                     for(int i = 0; i < t.nkeys - 1; i++){
                         if(((BorderNode)t).data[i] instanceof NextLayerMassTreeVal){
                             text += "<f" + i + "> "+ t.keys[i] + "|";
-                            nextLayerExist[i] = true;
+                            if(((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root != null){
+                                nextLayerExist[i] = true;
+                            }
                         }
                         else{
                             text += "<f" + i + "> "+ t.keys[i] + ((SingleMassTreeVal)((BorderNode)t).data[i]).suffix + "|";
@@ -528,7 +556,9 @@ public class MassTree {
                     }
                     if(((BorderNode)t).data[t.nkeys - 1] instanceof NextLayerMassTreeVal){
                         text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-                        nextLayerExist[t.nkeys - 1] = true;
+                        if(((NextLayerMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
+                            nextLayerExist[t.nkeys - 1] = true;
+                        }
                     }
                     else{
                         text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((SingleMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
@@ -555,7 +585,8 @@ public class MassTree {
             return text;
         }
 
-        public void makeDotFile(){ // 可視化用dotファイル出力
+        // 可視化用dotファイル出力
+        public void makeDotFile(){
             try{
                 FileWriter fw = new FileWriter("MassTreeShow.dot");
                 fw.write("digraph G {\n  node [shape = record,height=.1];\n");
@@ -567,19 +598,19 @@ public class MassTree {
             }
         }
     
-        // //範囲検索
-        // public List<String> getrange(String startKey, int n){
-        //     if (this.root == null){
-        //         System.out.println("the tree is empty");
-        //     }
-        //     String[] vals = new String[n];
-        //     int nfound = this.root.getrange(startKey,vals,0,n);
-        //     ArrayList<String> l = new ArrayList<String>(nfound);
-        //     for(int i = 0; i < nfound; i++){
-        //         l.add(vals[i]);
-        //     }
-        //     return l;
-        // }
+        //範囲検索
+        public List<String> getrange(String startKey, int n){
+            if (this.root == null){
+                System.out.println("the tree is empty");
+            }
+            String[] vals = new String[n];
+            int nfound = this.root.getrange(startKey,vals,0,n);
+            ArrayList<String> l = new ArrayList<String>(nfound);
+            for(int i = 0; i < nfound; i++){
+                l.add(vals[i]);
+            }
+            return l;
+        }
     
     
         public static void main(String[] args){

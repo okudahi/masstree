@@ -16,16 +16,14 @@ public class Bplustreetest {
 
     public static void main(String[] args){
         Bplustree tree = new Bplustree();
-        tree.put("C", "C");
-        tree.put("D", "D");
-        tree.put("CD", "CD");
-        // int[] intArray0 = new Random().ints(100, 1000, 10000).toArray();
-        // int[] intArray1 = new Random().ints(90, 0, 99).toArray();
-        // for(int i = 0; i < intArray0.length; i++){
-        //     tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
-        // }
-        // for (int i = 99; i > 74; i--){
+        int[] intArray0 = new Random().ints(100, 1000, 10000).toArray();
+        int[] intArray1 = new Random().ints(90, 0, 99).toArray();
+        for(int i = 0; i < intArray0.length; i++){
+            tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
+        }
+        // for (int i = 99; i > 0; i--){
         //     tree.put(String.valueOf(i),String.valueOf(i));
+        //     tree.makeDotFile();
         // }
         // for (int i = 74; i > 0; i--){
         //     tree.put(String.valueOf(i),String.valueOf(i));
@@ -34,9 +32,15 @@ public class Bplustreetest {
         //     tree.delete(String.valueOf(i));
         // }
         tree.makeDotFile();
+        tree.delete("99");
+        tree.delete("98");
+
         // assertEqual(tree.root.nkeys, 0);
-        List<String> getr = tree.getrange("10",50);
-        System.out.println(getr);
+        // List<String> getr = tree.getrange(String.valueOf(intArray0[0]),50);
+        for(int i = 0; i < intArray1.length; i++){ 
+            tree.delete(String.valueOf(intArray0[intArray1[i]]));
+        }
+        tree.makeDotFile();
         return;
     }
 }
