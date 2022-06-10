@@ -48,10 +48,10 @@ void insert(key k, Object value){
     }
     // tはkが入るべき葉ノード
     int ki = t.Iskeyexist(k)
-    if (ki >= 0){
+    if (ki >= 0){ // key kがもうある場合
         t.data[ki] = value; // 値の書き換え
     }
-    else if(t.nkeys < MAX_KEYS){ // key(k)がまだない、かつ余裕がある場合
+    else{ // key kがまだない場合
         int i;
         for(i = t.nkeys; i > 0; i--){ // iはnkeysから1まで
             int cmp = k.compareTo(t.keys[i-1]);
@@ -72,32 +72,26 @@ void insert(key k, Object value){
             t.nkeys++;
         }
     }
-    else{ // ノードが溢れるとき
-        this.split(k); // 分割
+    if(t.nkeys == MAX_CHILD){ // ノードが溢れるとき
+        t.split(); // 分割
     }
     
-}
-
-int split_index(key k){ // lとrに分ける際の基準となるインデックス
-    int j = HALF_MAX_CHILD - 1;
-    int ki = this.keyindex(k);
-    if(ki < j){
-        return j - 1;
-    }
-    else if(ki == j){
-        return 
-    }
 }
 
 LeafNodeでの分割
-split(key k){
+leaf_split(){
     LeafNode l = this;
     LeafNode r = new LeafNode;
-    int ki = this.keyindex(k);
-    lとrでkeyとdataを分配
+    // lとrでkeyとdataを分配
+    for (int i = j; i < MAX_CHILD; i++){
+        r.keys[i-j] = l.keys[i];
+        l.keys[i] = null;
+        r.data[i-j] = l.data[i];
+        l.data[i] = null;
+    }
     
     if(this == root){
-        中間ノードを作ってそれをrootにする
+        
     }
     else{
         this.parent.interior_insert(r.keys[0])
@@ -105,61 +99,41 @@ split(key k){
 }
 
 interior_insert(key k){
-    if(this.nkeys < MAX_KEYS){ // 余裕がある場合
-        int i;
-        for(i = this.nkeys; i > 0; i--){ // iはnkeysから1まで
-            int cmp = k.compareTo(t.keys[i-1]);
-            if(cmp < 0){ // k < keys[i-1]
-                this.keys[i] = this.keys[i-1]; // 右にずらす
-                this.data[i] = this.data[i-1];
-            } 
-            else{ // k > keys[i-1]
-                this.keys[i] = k;
-                this.data[i] = x;
-                this.nkeys++; // 空いたところに挿入
-                break;
-            }
-        }
-        if(i == 0){ // k < keys[0]
-            this.keys[0] = k; // 左端に挿入
-            this.data[0] = x;
-            this.nkeys++;
+    int i;
+    for(i = this.nkeys; i > 0; i--){ // iはnkeysから1まで
+        int cmp = k.compareTo(t.keys[i-1]);
+        if(cmp < 0){ // k < keys[i-1]
+            this.keys[i] = this.keys[i-1]; // 右にずらす
+            this.data[i] = this.data[i-1];
+        } 
+        else{ // k > keys[i-1]
+            this.keys[i] = k;
+            this.data[i] = x;
+            this.nkeys++; // 空いたところに挿入
+            break;
         }
     }
-    else{ // ノードが溢れるとき
-        this.interior_split(k); // 分割
+    if(i == 0){ // k < keys[0]
+        this.keys[0] = k; // 左端に挿入
+        this.data[0] = x;
+        this.nkeys++;
+    }
+    if (this.nkeys == MAX_KEYS){ // ノードが溢れたとき
+        this.interior_split; // 分割
     }
 }
 
-interior_split(key k){
+interior_split(){
     InteriorNode l = this;
     InteriorNode r = new InteriorNode;
     int ki = this.keyindex(k);
     int j = HALF_MAX_CHILD - 1;
     // lとrでkeyとchildを分配
-    if(ki < j){
-        for(int i = MAX_KEYS - 1; i > j - 1; i--){
-            r.keys[i] = l.keys[i];
-            l.keys[i] = null;
-            r.child[i] = l.child[i];
-            l.child[i] = null;
-        }
-    }
-    else if(ki == j){
-        for(int i = MAX_KEYS - 1; i > j - 1; i--){
-            r.keys[i] = l.keys[i];
-            l.keys[i] = null;
-            r.child[i] = l.child[i];
-            l.child[i] = null;
-        }
-    }
-    else{
-        for(int i = MAX_KEYS - 1; i > j - 1; i--){
-            r.keys[i] = l.keys[i];
-            l.keys[i] = null;
-            r.child[i] = l.child[i];
-            l.child[i] = null;
-        }
+    for (int i = j; i < MAX_CHILD; i++){
+        r.keys[i-j] = l.keys[i];
+        l.keys[i] = null;
+        r.data[i-j] = l.data[i];
+        l.data[i] = null;
     }
 
     if(this == root){
@@ -169,3 +143,9 @@ interior_split(key k){
         this.parent.interior_insert(j)
     }
 }
+
+void insert(String k, Object v){ // tree
+    node t = tree.root;
+    t.insert(k, v)
+
+insert()

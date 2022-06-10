@@ -25,7 +25,7 @@ public class MassTreeTest {
             System.out.println("key "+ tree.get(String.valueOf(intArray0[i])));
         }
         tree.makeDotFile();
-        for(int i = 0; i < intArray0.length - 2; i++){ 
+        for(int i = 0; i < intArray0.length/2; i++){ 
             tree.delete(String.valueOf(intArray0[i]));
             System.out.println(intArray0[i] + " deleted");
         }

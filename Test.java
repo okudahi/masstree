@@ -1,16 +1,25 @@
+// import java.util.List;
+// import java.util.ArrayList;
+public class test {
 
-public class Test{
     public static void main(String[] args){
-      Vehicle car = new Vehicle("車");
-      Vehicle bike = new Vehicle("バイク");
-      Vehicle airplane = new Vehicle("飛行機");
-       }
+        boolean[] nextLayerExist = new boolean[5];
+
+        // List<Integer> list = new ArrayList<Integer>();
+        // for(int i = 0; i < 5; i++){
+        //     list.add(2*i);
+        // }
+        // System.out.println("list: " + list);
+        // System.out.println("list.size: " + list.size());
+        // int i;
+        // int a = 9;
+        // for(i = 0; i < list.size(); i++){
+        //     if(9 < list.get(i)){
+        //         System.out.println("i = " + i);
+        //         break;
+        //     }
+        // }
+        // System.out.println("i = " + i);
+        return;
     }
-    
-    class Vehicle{
-    public static int num = 0;
-      public Vehicle(String data){
-      num++; // 何回インスタンス化されたかをカウントする
-      System.out.println( data + ":" + String.valueOf(num));
-              }
-    }
+}

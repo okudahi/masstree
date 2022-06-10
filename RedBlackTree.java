@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.io.BufferedReader;
 
 public class RedBlackTree {
@@ -255,22 +256,22 @@ public class RedBlackTree {
 
 
     // 赤黒木の表示
-    public String toString() {
-        return toGraph("", "", root).replaceAll("\\s+$", "");
-    }
+    // public String toString() {
+    //     return toGraph("", "", root).replaceAll("\\s+$", "");
+    // }
 
-    private String toGraph(String head, String bar, Node t) {
-        String graph = "";
-        if (t != null) {
-            graph += toGraph(head + "　　", "／", t.rst);
-            String node = t.color == false ? "R" : "B";
-            node += ":" + t.key;
-            node += ":" + t.value;
-            graph += String.format("%s%s%s%n", head, bar, node);
-            graph += toGraph(head + "　　", "＼", t.lst);
-        }
-        return graph;
-    }
+    // private String toGraph(String head, String bar, Node t) {
+    //     String graph = "";
+    //     if (t != null) {
+    //         graph += toGraph(head + "　　", "／", t.rst);
+    //         String node = t.color == false ? "R" : "B";
+    //         node += ":" + t.key;
+    //         node += ":" + t.value;
+    //         graph += String.format("%s%s%s%n", head, bar, node);
+    //         graph += toGraph(head + "　　", "＼", t.lst);
+    //     }
+    //     return graph;
+    // }
 
     private static String makedot(Node t){
         String text = "";
@@ -295,33 +296,26 @@ public class RedBlackTree {
 
     // メインルーチン
     public static void main(String[] args) {
-        final int n = 30;
+        final int n = 40;
         RedBlackTree m = new RedBlackTree();
-        for (int i = 0; i < n; i++) {
-            m.insert(i, i);
-        }
-        m.delete(2);
-        m.delete(3);
-        m.delete(10);
-        // System.out.println(m.toString());
+        var keys = new ArrayList<Integer>();
+        for (int i = 0; i < n; i++) keys.add(i);
+        java.util.Collections.shuffle(keys);
+        for (int i = 0; i < n; i++) m.insert(keys.get(i), i);
+        var deleteKeys = keys.subList(0, 10);
+        for (int key: deleteKeys) m.delete(key);
+
         try {
-            File file = new File("RBTsample.dot");// 読み込み
+            File file = new File("RBTTemplate.dot");// 読み込み
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
             FileWriter fw = new FileWriter("RBTshow.dot");// 書き込み
-            int linenum = 8; // linenum行目までコピー
+            int linenum = 8; 
+            // linenum行目までコピー(テンプレート)
             for (int i = 0; i < linenum; i++){
                 fw.write(br.readLine() + "\n");
             }
             br.close();
-            // fw.write(m.root.key + " -> " + m.root.lst.key + ";\n");
-            // if(m.root.lst.color){
-            //     fw.write(m.root.lst.key + "[fillcolor = \"#FF0000\"]" + ";\n");
-            // }
-            // fw.write(m.root.key + " -> " + m.root.rst.key + ";\n");
-            // if(m.root.rst.color){
-            //     fw.write(m.root.rst.key + "[fillcolor = \"#FF0000\"]" + ";\n");
-            // }
             String s = makedot(m.root);
             fw.write(s);
             fw.write("}");

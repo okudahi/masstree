@@ -1,9 +1,8 @@
-import BplusTree
 public class Yamazaki {
     private Bplustree root;
     private Object value;
     public Yamazaki() {
-        this.tree = new Bplustree();
+        this.root = new Bplustree();
     }
     public insert(String str, Object value) {
         Yamazaki tree = this;

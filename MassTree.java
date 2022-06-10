@@ -156,7 +156,6 @@ public class MassTree {
                     Node lchild = req.left;
                     Node rchild = req.right;
                     for(i = nkeys; i > 0; i--){ // iはnkeysから1まで
-    
                         int cmp = insertedKey.compareTo(this.keys[i-1]);
                         if(cmp < 0){ // k < keys[i-1] 右にずらす
                             this.keys[i] = this.keys[i-1];
@@ -201,19 +200,7 @@ public class MassTree {
                 l.keys[borderIndex] = null;
                 l.nkeys = borderIndex;
                 r.nkeys = MAX_KEYS - borderIndex;
-                if(this != root){ // rootでないなら親にSplitRequest送る
-                    return new SplitRequest(borderKey, l, r);
-                }
-                else{ // rootのとき、新たなrootを作る
-                    InteriorNode newRoot = new InteriorNode();
-                    newRoot.keys[0] = borderKey;
-                    newRoot.child[0] = l;
-                    newRoot.child[1] = r;
-                    newRoot.nkeys = 1;
-                    root = newRoot;
-                    return null;
-                }
-    
+                return new SplitRequest(borderKey, l, r);
             }
     
             // 検索:適切な位置の子をたどる
