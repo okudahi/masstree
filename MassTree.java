@@ -149,8 +149,7 @@ public class MassTree {
                 SplitRequest req = this.child[ki].insert(k,v,suf); // 再帰
                 if(req == null){ // 何もしない
                     return null;
-                }
-                else{ // 子が分割→SplitRequest
+                } else { // 子が分割→SplitRequest
                     int i;
                     String insertedKey = req.borderKey;
                     Node lchild = req.left;
@@ -222,8 +221,7 @@ public class MassTree {
                 boolean req = this.child[ki].delete(k, suf); // 再帰
                 if (req == false){ // 子どもが消えない→そのまま
                     return false;
-                }
-                else{ // 子どもが消える
+                } else { // 子どもが消える
                     if(this.nkeys > 0){ // キーが存在
                         if(ki > 0){ // 消えたのが左端じゃない
                             for(int i = ki; i < this.nkeys; i++){ // 左詰め
@@ -233,8 +231,7 @@ public class MassTree {
                             this.keys[this.nkeys-1] = null; // 右端のキーと子削除
                             this.child[this.nkeys] = null;
                             this.nkeys--;
-                        }
-                        else{ // 消えたのが左端
+                        } else { // 消えたのが左端
                             for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
                                 this.keys[i] = this.keys[i+1];
                                 this.child[i] = this.child[i+1];
@@ -244,8 +241,7 @@ public class MassTree {
                             this.child[this.nkeys] = null;
                             this.nkeys--;
                         }
-                    }
-                    else{ // キーが存在しない 
+                    } else { // キーが存在しない 
                         return true; // 子が一つもなくなったらDeleteRequestを返す
                     }
                 }
@@ -293,8 +289,7 @@ public class MassTree {
                     LayerOrDatum val = data[ki];
                     if(val instanceof Layer){
                         ((Layer)val).getNextLayer().insert(suf, v);
-                    }
-                    else{ // val instanceof Datum
+                    } else { // val instanceof Datum
                         if(((Datum)val).getSuffix().equals(suf)){ // keyが完全に一致→上書き
                             ((Datum)val).value = v;
                         }
@@ -316,8 +311,7 @@ public class MassTree {
                         if(cmp < 0){ // k < keys[i-1]
                             this.keys[i] = this.keys[i-1]; // 右にずらす
                             this.data[i] = this.data[i-1];
-                        } 
-                        else{ // k > keys[i-1]
+                        } else { // k > keys[i-1]
                             this.keys[i] = k;
                             this.data[i] = new Datum(v, suf);
                             this.nkeys++; // 空いたところに挿入
@@ -396,7 +390,7 @@ public class MassTree {
                             vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
                             count++;
                         }
-                    }else{
+                    } else {
                         vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
                         count++;
                     }
@@ -404,7 +398,7 @@ public class MassTree {
                 else{ // data[ki+i] instanceof Layer
                     if(i == ki){ // 最初だけsuffixを比較
                         count += ((Layer)data[i]).getNextLayer().root.getrange(suffix.substring(0, Math.min(suffix.length(), LEN_KEYSLICE)), suffix.substring(Math.min(suffix.length(), LEN_KEYSLICE)), vals, startIndex+count, n - count);
-                    }else{
+                    } else {
                         count += ((Layer)data[i]).getNextLayer().root.getrange("", "", vals, startIndex+count, n - count);
                     }
                 }
@@ -424,7 +418,7 @@ public class MassTree {
                 if(data[i] instanceof Datum){
                     vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
                     count++;
-                }else{ // data[ki+i] instanceof Layer
+                } else { // data[ki+i] instanceof Layer
                     count += ((Layer)data[i]).getNextLayer().root.getrange("", "", vals, startIndex+count, n - count);
                 }
                 i++;
@@ -448,8 +442,8 @@ public class MassTree {
                                 this.keys[i] = this.keys[i+1];
                                 this.data[i] = this.data[i+1];
                             }
-                            this.keys[this.nkeys] = null; // 右端のキーと値削除
-                            this.data[this.nkeys] = null;
+                            this.keys[this.nkeys-1] = null; // 右端のキーと値削除
+                            this.data[this.nkeys-1] = null;
                             this.nkeys--;
                             if(nkeys == 0){ // キーが一つもなくなったらノードを削除
                                 if(this.next != null && this.prev != null){ // リーフノード同士のポインタを修正
@@ -474,8 +468,8 @@ public class MassTree {
                                 this.keys[i] = this.keys[i+1];
                                 this.data[i] = this.data[i+1];
                             }
-                            this.keys[this.nkeys] = null; // 右端のキーと値削除
-                            this.data[this.nkeys] = null;
+                            this.keys[this.nkeys-1] = null; // 右端のキーと値削除
+                            this.data[this.nkeys-1] = null;
                             this.nkeys--;
                             if(nkeys == 0){ // キーが一つもなくなったらノードを削除
                                 if(this.next != null && this.prev != null){ // リーフノード同士のポインタを修正
@@ -491,11 +485,9 @@ public class MassTree {
                                 return true; // 親に知らせる
                             }
                             return false; // nkeysが1以上のとき、そのまま終了
-                        }
-                        else {return false;} // suffixが不一致のとき、何もしない
+                        } else {return false;} // suffixが不一致のとき、何もしない
                     }
-                }
-                else {return false;} // key(k)がまだない場合、何もしない
+                } else {return false;} // key(k)がまだない場合、何もしない
             }
         }
     
@@ -536,12 +528,10 @@ public class MassTree {
             if(val == null){return null;}
             else if(val instanceof Layer){
                 return ((Layer) val).getNextLayer().get(key.substring(LEN_KEYSLICE)); // 次の8文字で検索
-            }
-            else{ // val instanceof Datum
+            } else { // val instanceof Datum
                 if(val.getSuffix().equals(key.substring(Math.min(LEN_KEYSLICE, key.length())))){ // キーが一致
                     return val;
-                }
-                else{ // キーがない
+                } else { // キーがない
                     return null;
                 }
             }
@@ -551,13 +541,11 @@ public class MassTree {
         public boolean delete(String key){
             if (root == null) {
                 return false;
-            }
-            else{
+            } else {
                 boolean req = this.root.delete(key.substring(0, Math.min(key.length(), LEN_KEYSLICE)), key.substring(Math.min(key.length(), LEN_KEYSLICE)));
                 if (req == false){ // rootからnullが返ってきたとき、何もしない
                     return false;
-                }
-                else{ // rootがなくなったとき、木が空になる
+                } else { // rootがなくなったとき、木が空になる
                     root = null;
                     return true;
                 }
@@ -577,8 +565,7 @@ public class MassTree {
                             if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
                                 nextLayerExist[i] = true;
                             }
-                        }
-                        else{
+                        } else {
                             text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
                         }
                     }
@@ -587,8 +574,7 @@ public class MassTree {
                         if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
                             nextLayerExist[t.nkeys - 1] = true;
                         }
-                    }
-                    else{
+                    } else {
                         text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
                     }
                     for(int i = 0; i < t.nkeys; i++){

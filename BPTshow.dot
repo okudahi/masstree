@@ -1,38 +1,12 @@
 digraph G {
   node [shape = record,height=.1];
-node12[label = "<f0> |4953|<f1>"];
-node2[label = "<f0> |1383|<f1> |2185|<f2> |2780|<f3> |3420|<f4> |3850|<f5> |4217|<f6> |4536|<f7>"];
-node0[label = "<f1> 1112"];
+node2[label = "<f0> |15|<f1> |20|<f2> |25|<f3>"];
+node0[label = "<f0> 10|<f1> 11|<f2> 12|<f3> 13|<f5> 14"];
 "node2":f0 -> "node0"
-node15[label = "<f0> 1383|<f1> 1406|<f2> 1466|<f3> 1532|<f5> 2151"];
-"node2":f1 -> "node15"
-node3[label = "<f0> 2185|<f1> 2476|<f2> 2680|<f4> 2773"];
-"node2":f2 -> "node3"
-node7[label = "<f1> 3248"];
-"node2":f3 -> "node7"
-node14[label = "<f0> 3423|<f1> 3460|<f2> 3629|<f4> 3645"];
-"node2":f4 -> "node14"
-node1[label = "<f1> 3975"];
-"node2":f5 -> "node1"
-node19[label = "<f0> 4217|<f1> 4247|<f2> 4303|<f3> 4434|<f5> 4524"];
-"node2":f6 -> "node19"
-node10[label = "<f0> 4864|<f2> 4917"];
-"node2":f7 -> "node10"
-"node12":f0 -> "node2"
-node11[label = "<f0> |5710|<f1> |7468|<f2> |7732|<f3> |8101|<f4> |8603|<f5> |9049|<f6>"];
-node6[label = "<f1> 4953"];
-"node11":f0 -> "node6"
-node16[label = "<f1> 5990"];
-"node11":f1 -> "node16"
-node4[label = "<f0> 7507|<f2> 7721"];
-"node11":f2 -> "node4"
-node18[label = "<f0> 7732|<f1> 7879|<f3> 8075"];
-"node11":f3 -> "node18"
-node5[label = "<f0> 8134|<f1> 8262|<f3> 8313"];
-"node11":f4 -> "node5"
-node9[label = "<f0> 8648|<f2> 8906"];
-"node11":f5 -> "node9"
-node17[label = "<f0> 9321|<f1> 9481|<f3> 9623"];
-"node11":f6 -> "node17"
-"node12":f1 -> "node11"
+node21[label = "<f0> 15|<f1> 16|<f2> 17|<f3> 18|<f5> 19"];
+"node2":f1 -> "node21"
+node20[label = "<f0> 20|<f1> 21|<f2> 22|<f3> 23|<f5> 24"];
+"node2":f2 -> "node20"
+node19[label = "<f0> 25|<f1> 27|<f2> 28|<f4> 29"];
+"node2":f3 -> "node19"
 }
