@@ -31,12 +31,14 @@ public class Bplustreetest {
         // for (int i = 1; i < 70; i++){
         //     tree.delete(String.valueOf(i));
         // }
-        tree.makeDotFile();
         tree.delete("99");
         tree.delete("98");
 
         // assertEqual(tree.root.nkeys, 0);
-        // List<String> getr = tree.getrange(String.valueOf(intArray0[0]),50);
+        List<String> getr = tree.getrange(String.valueOf(intArray0[0]),50);
+        for(int i = 0; i < getr.size(); i++){
+            System.out.println(getr.get(i));
+        }
         for(int i = 0; i < intArray1.length; i++){ 
             tree.delete(String.valueOf(intArray0[intArray1[i]]));
         }

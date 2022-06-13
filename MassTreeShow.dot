@@ -1,54 +1,54 @@
 digraph G {
   node [shape = record,height=.1];
-node5[label = "<f0> |13|<f1>"];
-node0[label = "<f0> 10|<f1> 11|<f2> 12"];
-node17[label = "<f0> |22|<f1> |43|<f2>"];
-node2[label = "<f0> 03|<f1> 046|<f2> 063"];
-node15[label = "<f0> 3"];
-"node2":f0 -> "node15"[color = red];
-"node17":f0 -> "node2"
-node16[label = "<f0> 245|<f1> 420"];
-"node17":f1 -> "node16"
-node26[label = "<f0> 439|<f1> 923|<f2> 972"];
-"node17":f2 -> "node26"
-"node0":f0 -> "node17"[color = red];
-node10[label = "<f0> 128|<f1> 505|<f2> 587"];
-"node0":f1 -> "node10"[color = red];
-node19[label = "<f0> |39|<f1>"];
-node1[label = "<f0> 004|<f1> 22"];
-node20[label = "<f0> 2"];
-"node1":f1 -> "node20"[color = red];
-"node19":f0 -> "node1"
-node18[label = "<f0> 761|<f1> 770"];
-"node19":f1 -> "node18"
-"node0":f2 -> "node19"[color = red];
-"node5":f0 -> "node0"
-node4[label = "<f0> 13|<f1> 14|<f2> 15|<f3> 16|<f4> 17|<f5> 18|<f6> 19"];
-node9[label = "<f0> 461|<f1> 485|<f2> 866|<f3> 903"];
-"node4":f0 -> "node9"[color = red];
-node8[label = "<f0> 032|<f1> 139|<f2> 248"];
-"node4":f1 -> "node8"[color = red];
-node22[label = "<f0> |26|<f1>"];
-node3[label = "<f0> 238"];
-"node22":f0 -> "node3"
-node21[label = "<f0> 293|<f1> 494|<f2> 743"];
-"node22":f1 -> "node21"
-"node4":f2 -> "node22"[color = red];
-node13[label = "<f0>"];
-node6[label = "<f0> 108|<f1> 207"];
-"node13":f0 -> "node6"
-"node4":f3 -> "node13"[color = red];
-node24[label = "<f0> |57|<f1>"];
-node7[label = "<f0> 121|<f1> 446|<f2> 516"];
-"node24":f0 -> "node7"
-node23[label = "<f0> 810"];
-"node24":f1 -> "node23"
-"node4":f4 -> "node24"[color = red];
-node11[label = "<f0> 117|<f1> 351|<f2> 40"];
-node25[label = "<f0> 1"];
-"node11":f2 -> "node25"[color = red];
-"node4":f5 -> "node11"[color = red];
-node14[label = "<f0> 040|<f1> 173|<f2> 588|<f3> 853|<f4> 993"];
-"node4":f6 -> "node14"[color = red];
-"node5":f1 -> "node4"
+node0[label = "<f0> 10|<f1> 11"];
+node8[label = "<f0> |55|<f1> |62|<f2> |76|<f3> |84|<f4>"];
+node2[label = "<f0> 515|<f1> 53"];
+node20[label = "<f0> 3"];
+"node2":f1 -> "node20"[color = red];
+"node8":f0 -> "node2"
+node25[label = "<f0> 574|<f1> 58|<f2> 595"];
+node18[label = "<f0> 5"];
+"node25":f1 -> "node18"[color = red];
+"node8":f1 -> "node25"
+node7[label = "<f0> 62|<f1> 660|<f2> 698|<f3> 700"];
+node12[label = "<f0> 1"];
+"node7":f0 -> "node12"[color = red];
+"node8":f2 -> "node7"
+node26[label = "<f0> 768|<f1> 780|<f2> 793|<f3> 822|<f4> 832"];
+"node8":f3 -> "node26"
+node14[label = "<f0> 884|<f1> 95|<f2> 96|<f3> 993"];
+node24[label = "<f0> 5"];
+"node14":f1 -> "node24"[color = red];
+node27[label = "<f0> 8"];
+"node14":f2 -> "node27"[color = red];
+"node8":f4 -> "node14"
+"node0":f0 -> "node8"[color = red];
+node4[label = "<f0> |11|<f1> |20|<f2> |27|<f3> |37|<f4>"];
+node1[label = "<f0> 104"];
+"node4":f0 -> "node1"
+node22[label = "<f0> 11|<f1> 131|<f2> 16|<f3> 17"];
+node16[label = "<f0> 9"];
+"node22":f0 -> "node16"[color = red];
+node28[label = "<f0> 1|<f1> 6"];
+"node22":f2 -> "node28"[color = red];
+node19[label = "<f0> 8"];
+"node22":f3 -> "node19"[color = red];
+"node4":f1 -> "node22"
+node9[label = "<f0> 20|<f1> 23"];
+node23[label = "<f0> 9"];
+"node9":f0 -> "node23"[color = red];
+node29[label = "<f0> 4|<f1> 6"];
+"node9":f1 -> "node29"[color = red];
+"node4":f2 -> "node9"
+node15[label = "<f0> 331|<f1> 34|<f2> 362"];
+node11[label = "<f0> 1|<f1> 7"];
+"node15":f1 -> "node11"[color = red];
+"node4":f3 -> "node15"
+node3[label = "<f0> 386|<f1> 41|<f2> 436|<f3> 44"];
+node17[label = "<f0> 7|<f1> 8"];
+"node3":f1 -> "node17"[color = red];
+node21[label = "<f0> 0|<f1> 5"];
+"node3":f3 -> "node21"[color = red];
+"node4":f4 -> "node3"
+"node0":f1 -> "node4"[color = red];
 }

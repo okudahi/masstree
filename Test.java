@@ -3,7 +3,12 @@
 public class test {
 
     public static void main(String[] args){
-        boolean[] nextLayerExist = new boolean[5];
+        
+        System.out.println("".compareTo("z"));
+        int ki = 0;
+        for(ki = 0; ki < 4; ki++){
+        }
+        System.out.println(ki);
 
         // List<Integer> list = new ArrayList<Integer>();
         // for(int i = 0; i < 5; i++){

@@ -19,9 +19,9 @@ public class MassTree {
 
     // 検索
     public String get(String key){
-        MassTreeNode.MassTreeVal val = this.rootTree.get(key);
+        MassTreeNode.LayerOrDatum val = this.rootTree.get(key);
         if(val == null) {return null;}
-        else {return ((MassTreeNode.SingleMassTreeVal)val).getData();} 
+        else {return ((MassTreeNode.Datum)val).getData();} 
     }
 
     // 挿入
@@ -35,7 +35,7 @@ public class MassTree {
     }
 
     // 範囲検索
-    public Object getrange(String k, Integer n){
+    public List getrange(String k, Integer n){
         return this.rootTree.getrange(k, n);
     }
 
@@ -83,8 +83,8 @@ public class MassTree {
             }
     
             abstract public SplitRequest insert(String k, String v, String suf);
-            abstract public MassTreeVal get(String k);
-            abstract public int getrange(String startKey, String[] vals, int startIndex, int n);
+            abstract public LayerOrDatum get(String k);
+            abstract public int getrange(String startKeySlice, String suffix, String[] vals, int startIndex, int n);
             abstract public boolean delete(String k, String suf);
         }
         
@@ -101,32 +101,32 @@ public class MassTree {
                 this.right = r;
             }
         }
-    
-        public interface MassTreeVal {
+        // data[]に入る型
+        public interface LayerOrDatum {
             String getSuffix();
         }
     
         // nextLayer
-        public static class NextLayerMassTreeVal implements MassTreeVal {
+        public static class Layer implements LayerOrDatum {
             MassTreeNode nextLayer;
             public String getSuffix() { return ""; }
             public MassTreeNode getNextLayer() { return nextLayer; }
     
-            NextLayerMassTreeVal(){
+            Layer(){
                 this.nextLayer = new MassTreeNode();
             }
         }
     
         // {data, suffix}
-        public static class SingleMassTreeVal implements MassTreeVal {
+        public static class Datum implements LayerOrDatum {
             String suffix;
-            String data;
+            String value;
             public String getSuffix() { return suffix; }
-            public String getData() { return data; }
+            public String getData() { return value; }
     
-            SingleMassTreeVal(String val, String suf){
+            Datum(String val, String suf){
                 this.suffix = suf;
-                this.data = val;
+                this.value = val;
             }
         }
     
@@ -204,16 +204,16 @@ public class MassTree {
             }
     
             // 検索:適切な位置の子をたどる
-            public MassTreeVal get(String k){
+            public LayerOrDatum get(String k){
                 int ki = this.keyIndex(k);
                 return this.child[ki].get(k);
             }
 
     
             // 範囲検索:適切な位置の子をたどる
-            public int getrange(String startKey, String[] vals, int startIndex, int n){
-                int ki = this.keyIndex(startKey);
-                return this.child[ki].getrange(startKey, vals, startIndex, n);
+            public int getrange(String startKeySlice, String suffix, String[] vals, int startIndex, int n){
+                int ki = this.keyIndex(startKeySlice);
+                return this.child[ki].getrange(startKeySlice, suffix, vals, startIndex, n);
             }
     
             // 削除:適切な位置の子をたどる
@@ -260,7 +260,7 @@ public class MassTree {
         public static class BorderNode extends Node {
     
             // データ
-            MassTreeVal[] data;
+            LayerOrDatum[] data;
             // 左隣ノード
             BorderNode prev;
             // 右隣ノード
@@ -273,16 +273,16 @@ public class MassTree {
                 this.serial = serialNumber++;
                 nkeys = 0;
                 this.keys = new String[MAX_KEYS + 1];
-                this.data = new MassTreeVal[MAX_KEYS + 1];
+                this.data = new LayerOrDatum[MAX_KEYS + 1];
             }
             // コンストラクタ(要素が一つ入ったBorderNode)
             public BorderNode(String key, String x) {
                 this.serial = serialNumber++;
                 this.keys = new String[MAX_KEYS + 1];
-                this.data = new MassTreeVal[MAX_KEYS + 1];
+                this.data = new LayerOrDatum[MAX_KEYS + 1];
                 this.keys[0] = key.substring(0, Math.min(key.length(), LEN_KEYSLICE)); 
-                if(key.length() <= LEN_KEYSLICE) {this.data[0] = new SingleMassTreeVal(x,"");}
-                else{this.data[0] = new SingleMassTreeVal(x, key.substring(LEN_KEYSLICE));}
+                if(key.length() <= LEN_KEYSLICE) {this.data[0] = new Datum(x,"");}
+                else{this.data[0] = new Datum(x, key.substring(LEN_KEYSLICE));}
                 this.nkeys = 1;
             }
     
@@ -290,20 +290,20 @@ public class MassTree {
             public SplitRequest insert(String k, String v, String suf) {
                 int ki = isKeyExist(k);
                 if(ki >= 0){ // keysliceがある場合
-                    MassTreeVal val = data[ki];
-                    if(val instanceof NextLayerMassTreeVal){
-                        ((NextLayerMassTreeVal)val).getNextLayer().insert(suf, v);
+                    LayerOrDatum val = data[ki];
+                    if(val instanceof Layer){
+                        ((Layer)val).getNextLayer().insert(suf, v);
                     }
-                    else{ // val instanceof SingleMassTreeVal
-                        if(((SingleMassTreeVal)val).getSuffix().equals(suf)){ // keyが完全に一致→上書き
-                            ((SingleMassTreeVal)val).data = v;
+                    else{ // val instanceof Datum
+                        if(((Datum)val).getSuffix().equals(suf)){ // keyが完全に一致→上書き
+                            ((Datum)val).value = v;
                         }
                         else{ // suffixが違う→nextlayer作成
-                            String suffix0 = ((SingleMassTreeVal)val).getSuffix(); // 元々あったsuffix
-                            String val0 = ((SingleMassTreeVal)val).data; // 元々あったvalue
-                            data[ki] = new NextLayerMassTreeVal();
-                            ((NextLayerMassTreeVal)data[ki]).nextLayer.insert(suffix0, val0);
-                            ((NextLayerMassTreeVal)data[ki]).nextLayer.insert(suf, v);
+                            String suffix0 = ((Datum)val).getSuffix(); // 元々あったsuffix
+                            String val0 = ((Datum)val).value; // 元々あったvalue
+                            data[ki] = new Layer();
+                            ((Layer)data[ki]).nextLayer.insert(suffix0, val0);
+                            ((Layer)data[ki]).nextLayer.insert(suf, v);
                         }
                     }
                     return null;
@@ -319,14 +319,14 @@ public class MassTree {
                         } 
                         else{ // k > keys[i-1]
                             this.keys[i] = k;
-                            this.data[i] = new SingleMassTreeVal(v, suf);
+                            this.data[i] = new Datum(v, suf);
                             this.nkeys++; // 空いたところに挿入
                             break;
                         }
                     }
                     if(i == 0){ // k < keys[0]
                         this.keys[0] = k; // 左端に挿入
-                        this.data[0] = new SingleMassTreeVal(v, suf);;
+                        this.data[0] = new Datum(v, suf);;
                         this.nkeys++;
                     }
                     if(this.nkeys > MAX_KEYS){
@@ -362,7 +362,7 @@ public class MassTree {
             }
     
             // 検索
-            public MassTreeVal get(String k){
+            public LayerOrDatum get(String k){
                 int ki = this.isKeyExist(k);
                 if (ki < 0){ // キーkが無い
                     return null;
@@ -371,27 +371,68 @@ public class MassTree {
             }
     
         // 範囲検索:開始位置の検索
-        public int getrange(String startKey, String[] vals, int startIndex, int n){
+        public int getrange(String startKeySlice, String suffix, String[] vals, int startIndex, int n){
             int ki; // 開始インデックス
             for(ki = 0; ki < this.nkeys; ki++){
-                int cmp = startKey.compareTo(this.keys[ki]); 
-                if(cmp <= 0){
-                    break;
-                } // k < keys[i]
+                int cmp = startKeySlice.compareTo(this.keys[ki]);
+                if(cmp < 0){ // k < keys[i]
+                    return getrangeContinue(ki, vals, startIndex, n);
+                }
+                else if(cmp == 0){
+                    return getrangeContinueEqual(ki, suffix, vals, startIndex, n);
+                }
             }
             return getrangeContinue(ki, vals, startIndex, n);
         }
 
-        // 範囲検索:処理(this.data[ki]からmin(nkeys-ki,n)個をvals[startIndex]~に格納)
+        // 範囲検索:処理(キーが一致したとき、suffixの比較が必要)
+        public int getrangeContinueEqual(int ki, String suffix, String[] vals, int startIndex, int n){
+            int count = 0; // 読み取った値の数
+            int i = ki;
+            while(i < nkeys && count < n){
+                if(data[i] instanceof Datum){
+                    if(i == ki){ // 最初だけsuffixを比較
+                        if(suffix.compareTo(data[i].getSuffix()) <= 0){ // suffix <= data[i].suffix
+                            vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
+                            count++;
+                        }
+                    }else{
+                        vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
+                        count++;
+                    }
+                }
+                else{ // data[ki+i] instanceof Layer
+                    if(i == ki){ // 最初だけsuffixを比較
+                        count += ((Layer)data[i]).getNextLayer().root.getrange(suffix.substring(0, Math.min(suffix.length(), LEN_KEYSLICE)), suffix.substring(Math.min(suffix.length(), LEN_KEYSLICE)), vals, startIndex+count, n - count);
+                    }else{
+                        count += ((Layer)data[i]).getNextLayer().root.getrange("", "", vals, startIndex+count, n - count);
+                    }
+                }
+                i++;
+            }
+            if(n > count && next != null){
+                return next.getrangeContinue(0, vals, startIndex+count, n-count) + count;
+            }
+            return count;
+        }
+
+        // 範囲検索:処理(キーが一致しないとき、それより右側を無条件で追加)
         public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
-            int c = Math.min(nkeys-ki, n); // 読み取る値の数
-            for(int i =  0; i < c; i++){
-                    vals[startIndex+i] = null; // data[ki+i]
+            int count = 0; // 読み取った値の数
+            int i = ki;
+            while(i < nkeys && count < n){
+                if(data[i] instanceof Datum){
+                    vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
+                    count++;
+                }else{ // data[ki+i] instanceof Layer
+                    count += ((Layer)data[i]).getNextLayer().root.getrange("", "", vals, startIndex+count, n - count);
+                }
+                i++;
             }
-            if(n > c && next != null){
-                return next.getrangeContinue(0, vals, startIndex+c, n-c) + c;
+            if(n > count && next != null){
+                return next.getrangeContinue(0, vals, startIndex+count, n-count) + count;
             }
-            return c;
+            return count;
         }
 
     
@@ -399,9 +440,9 @@ public class MassTree {
             public boolean delete(String k, String suf){
                 int ki = this.isKeyExist(k);
                 if (ki >= 0){ // key(k)がもうある(ki番目に一致)とき、削除
-                    MassTreeVal val = this.data[ki];
-                    if(val instanceof NextLayerMassTreeVal){
-                        boolean req = ((NextLayerMassTreeVal)val).getNextLayer().delete(suf);
+                    LayerOrDatum val = this.data[ki];
+                    if(val instanceof Layer){
+                        boolean req = ((Layer)val).getNextLayer().delete(suf);
                         if(req == true){ // nextlayerが完全に空になった場合、このキーを削除
                             for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
                                 this.keys[i] = this.keys[i+1];
@@ -427,8 +468,8 @@ public class MassTree {
                         }
                         return false; // nextlayerが空にならなかったとき、終了
                     }
-                    else{ // val instanceof SingleMassTreeVal
-                        if(((SingleMassTreeVal)val).getSuffix().equals(suf)){ // suffixが一致した場合、削除
+                    else{ // val instanceof Datum
+                        if(((Datum)val).getSuffix().equals(suf)){ // suffixが一致した場合、削除
                             for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
                                 this.keys[i] = this.keys[i+1];
                                 this.data[i] = this.data[i+1];
@@ -488,15 +529,15 @@ public class MassTree {
         }
     
         // get(MassTreeValを返す)
-        MassTreeVal get(String key){
+        LayerOrDatum get(String key){
             if(this.root == null){return null;}
             String keyslice = key.substring(0, Math.min(LEN_KEYSLICE, key.length())); // 8文字で切る
-            MassTreeVal val = this.root.get(keyslice);
+            LayerOrDatum val = this.root.get(keyslice);
             if(val == null){return null;}
-            else if(val instanceof NextLayerMassTreeVal){
-                return ((NextLayerMassTreeVal) val).getNextLayer().get(key.substring(LEN_KEYSLICE)); // 次の8文字で検索
+            else if(val instanceof Layer){
+                return ((Layer) val).getNextLayer().get(key.substring(LEN_KEYSLICE)); // 次の8文字で検索
             }
-            else{ // val instanceof SingleMassTreeVal
+            else{ // val instanceof Datum
                 if(val.getSuffix().equals(key.substring(Math.min(LEN_KEYSLICE, key.length())))){ // キーが一致
                     return val;
                 }
@@ -531,29 +572,29 @@ public class MassTree {
                     boolean[] nextLayerExist = new boolean[t.nkeys];
                     text += "node" + t.serial + "[label = \"";
                     for(int i = 0; i < t.nkeys - 1; i++){
-                        if(((BorderNode)t).data[i] instanceof NextLayerMassTreeVal){
+                        if(((BorderNode)t).data[i] instanceof Layer){
                             text += "<f" + i + "> "+ t.keys[i] + "|";
-                            if(((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root != null){
+                            if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
                                 nextLayerExist[i] = true;
                             }
                         }
                         else{
-                            text += "<f" + i + "> "+ t.keys[i] + ((SingleMassTreeVal)((BorderNode)t).data[i]).suffix + "|";
+                            text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
                         }
                     }
-                    if(((BorderNode)t).data[t.nkeys - 1] instanceof NextLayerMassTreeVal){
+                    if(((BorderNode)t).data[t.nkeys - 1] instanceof Layer){
                         text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-                        if(((NextLayerMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
+                        if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
                             nextLayerExist[t.nkeys - 1] = true;
                         }
                     }
                     else{
-                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((SingleMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
+                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
                     }
                     for(int i = 0; i < t.nkeys; i++){
                         if(nextLayerExist[i] == true){
-                            text += makedot(((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root);
-                            text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
+                            text += makedot(((Layer)((BorderNode)t).data[i]).nextLayer.root);
+                            text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((Layer)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
                         }
                     }
                 }
@@ -591,7 +632,7 @@ public class MassTree {
                 System.out.println("the tree is empty");
             }
             String[] vals = new String[n];
-            int nfound = this.root.getrange(startKey,vals,0,n);
+            int nfound = this.root.getrange(startKey.substring(0,Math.min(startKey.length(), LEN_KEYSLICE)), startKey.substring(Math.min(startKey.length(), LEN_KEYSLICE)), vals,0,n);
             ArrayList<String> l = new ArrayList<String>(nfound);
             for(int i = 0; i < nfound; i++){
                 l.add(vals[i]);
