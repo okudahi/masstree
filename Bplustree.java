@@ -1,11 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class Bplustree {
 
-    final private static int MAX_CHILD = 9;
+    final private static int MAX_CHILD = 15;
     final private static int MAX_KEYS = MAX_CHILD - 1;
     final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
 
@@ -128,18 +126,7 @@ public class Bplustree {
             l.keys[borderIndex] = null;
             l.nkeys = borderIndex;
             r.nkeys = MAX_KEYS - borderIndex;
-            if(this != root){ // rootでないなら親にSplitRequest送る
-                return new SplitRequest(borderKey, l, r);
-            }
-            else{ // rootのとき、新たなrootを作る
-                InteriorNode newRoot = new InteriorNode();
-                newRoot.keys[0] = borderKey;
-                newRoot.child[0] = l;
-                newRoot.child[1] = r;
-                newRoot.nkeys = 1;
-                root = newRoot;
-                return null;
-            }
+            return new SplitRequest(borderKey, l, r);
 
         }
 
@@ -227,7 +214,6 @@ public class Bplustree {
             int ki = this.isKeyExist(k);
             if (ki >= 0){ // key(k)がもうある(ki番目に一致)
                 this.data[ki] = v; // データの置き換え
-                System.out.println("the key " + k +  " already exists: updated the value");
                 return null;
             }
             else{ // key(k)がまだない場合
@@ -251,10 +237,8 @@ public class Bplustree {
                     this.nkeys++;
                 }
                 if(this.nkeys > MAX_KEYS){
-                    System.out.println("the key " + k +  " is inserted with split");
                     return this.split();
                 }
-                System.out.println("the key " + k +  " is inserted");
                 return null;
             }
         }
@@ -327,7 +311,6 @@ public class Bplustree {
                 this.keys[this.nkeys] = null; // 右端のキーと値削除
                 this.data[this.nkeys] = null;
                 this.nkeys--;
-                System.out.println("the key " + k + " is deleted");
                 if(nkeys == 0){ // キーが一つもなくなったらノードを削除
                     if(this.next != null && this.prev != null){
                         this.prev.next = this.next;
@@ -344,7 +327,6 @@ public class Bplustree {
                 return false; // nkeysが1以上のとき、そのまま終了
             }
             else{ // key(k)がまだない場合、何もしない
-                System.out.println("The key " + k + " is already deleted");
                 return false;
             }
         }
@@ -401,7 +383,6 @@ public class Bplustree {
     // 削除・・・リバランスしない(Masstree用)
     public void delete(String key){
         if (root == null) {
-            System.out.println("the tree is empty");
         }
         else{
             boolean req = this.root.delete(key);
@@ -414,47 +395,9 @@ public class Bplustree {
         }
     }
 
-    private static String makedot(Node t){ // 可視化用dotファイル用
-        String text = "";
-        if(t != null){
-            if(t instanceof LeafNode){
-                text += "node" + t.serial + "[label = \"";
-                for(int i = 0; i < t.nkeys - 1; i++){
-                    text += "<f" + i + "> "+ t.keys[i] + "|";
-                }
-                text += "<f" + t.nkeys + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-            }
-            if(t instanceof InteriorNode){
-                text += "node" + t.serial + "[label = \"";
-                for(int i = 0; i < t.nkeys; i++){
-                    text += "<f" + i + "> " + "|" + t.keys[i] + "|";
-                }
-                text += "<f" + t.nkeys + ">\"];\n";
-                for(int i = 0; i < t.nkeys + 1; i++){
-                    text += makedot(((InteriorNode)t).child[i]);
-                    text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
-                }
-            }
-        }   
-        return text;
-    }
-
-    public void makeDotFile(){ // 可視化用dotファイル出力
-        try{
-            FileWriter fw = new FileWriter("BPTshow.dot");
-            fw.write("digraph G {\n  node [shape = record,height=.1];\n");
-            fw.write(makedot(this.root));
-            fw.write("}");
-            fw.close();
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-    }
-
     //範囲検索
     public List<String> getrange(String startKey, int n){
         if (this.root == null){
-            System.out.println("the tree is empty");
         }
         String[] vals = new String[n];
         int nfound = this.root.getrange(startKey,vals,0,n);

@@ -1,10 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
-
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.Math;
-
 
 public class MassTree {
     MassTreeNode rootTree;
@@ -39,17 +35,12 @@ public class MassTree {
         return this.rootTree.getrange(k, n);
     }
 
-    // dotファイル出力
-    public void makeDotFile(){
-        this.rootTree.makeDotFile();
-    }
-
     public static class MassTreeNode {
 
-        final static int MAX_CHILD = 8;
+        final static int MAX_CHILD = 15;
         final static int MAX_KEYS = MAX_CHILD - 1;
         final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
-        final private static int LEN_KEYSLICE = 2;
+        final private static int LEN_KEYSLICE = 8;
     
         
         // Node
@@ -523,72 +514,10 @@ public class MassTree {
             }
         }
     
-        // 可視化用dotファイル用
-        public static String makedot(Node t){ 
-            String text = "";
-            if(t != null){
-                if(t instanceof BorderNode){
-                    boolean[] nextLayerExist = new boolean[t.nkeys];
-                    text += "node" + t.serial + "[label = \"";
-                    for(int i = 0; i < t.nkeys - 1; i++){
-                        if(((BorderNode)t).data[i] instanceof NextLayerMassTreeVal){
-                            text += "<f" + i + "> "+ t.keys[i] + "|";
-                            if(((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root != null){
-                                nextLayerExist[i] = true;
-                            }
-                        }
-                        else{
-                            text += "<f" + i + "> "+ t.keys[i] + ((SingleMassTreeVal)((BorderNode)t).data[i]).suffix + "|";
-                        }
-                    }
-                    if(((BorderNode)t).data[t.nkeys - 1] instanceof NextLayerMassTreeVal){
-                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-                        if(((NextLayerMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
-                            nextLayerExist[t.nkeys - 1] = true;
-                        }
-                    }
-                    else{
-                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((SingleMassTreeVal)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
-                    }
-                    for(int i = 0; i < t.nkeys; i++){
-                        if(nextLayerExist[i] == true){
-                            text += makedot(((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root);
-                            text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((NextLayerMassTreeVal)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
-                        }
-                    }
-                }
-                if(t instanceof InteriorNode){
-                    text += "node" + t.serial + "[label = \"";
-                    for(int i = 0; i < t.nkeys; i++){
-                        text += "<f" + i + "> " + "|" + t.keys[i] + "|";
-                    }
-                    text += "<f" + t.nkeys + ">\"];\n";
-                    for(int i = 0; i < t.nkeys + 1; i++){
-                        text += makedot(((InteriorNode)t).child[i]);
-                        text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
-                    }
-                }
-            }   
-            return text;
-        }
-
-        // 可視化用dotファイル出力
-        public void makeDotFile(){
-            try{
-                FileWriter fw = new FileWriter("MassTreeShow.dot");
-                fw.write("digraph G {\n  node [shape = record,height=.1];\n");
-                fw.write(makedot(this.root));
-                fw.write("}");
-                fw.close();
-            } catch (IOException ex){
-                ex.printStackTrace();
-            }
-        }
-    
         //範囲検索
         public List<String> getrange(String startKey, int n){
             if (this.root == null){
-                System.out.println("the tree is empty");
+                return null;
             }
             String[] vals = new String[n];
             int nfound = this.root.getrange(startKey,vals,0,n);
