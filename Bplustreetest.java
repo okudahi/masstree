@@ -24,11 +24,11 @@ public class Bplustreetest {
         for (int i = 99; i > 9; i--){
             tree.put(String.valueOf(i),String.valueOf(i));
         }
-        tree.makeDotFile();
+        // tree.makeDotFile();
         for (int i = 99; i > 29; i--){
             tree.delete(String.valueOf(i));
         }
-        tree.makeDotFile();
+        // tree.makeDotFile();
         // assertEqual(tree.root.nkeys, 0);
         // List<String> getr = tree.getrange(String.valueOf(intArray0[0]),50);
         // for(int i = 0; i < getr.size(); i++){

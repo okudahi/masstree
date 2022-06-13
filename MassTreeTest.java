@@ -26,7 +26,7 @@ public class MassTreeTest {
         for(int i = 0; i < intArray0.length; i++){ 
             System.out.println("key "+ tree.get(String.valueOf(intArray0[i])));
         }
-        tree.makeDotFile();
+        // tree.makeDotFile();
         List<String> ls = tree.getrange("10900",30);
         for(int i = 0; i < ls.size(); i++){
             System.out.println("getrange from key \"10900\" #" + i + ": " + ls.get(i));

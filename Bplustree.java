@@ -125,22 +125,7 @@ public class Bplustree {
             l.keys[borderIndex] = null;
             l.nkeys = borderIndex;
             r.nkeys = MAX_KEYS - borderIndex;
-<<<<<<< HEAD
             return new SplitRequest(borderKey, l, r);
-=======
-            if(this != root){ // rootでないなら親にSplitRequest送る
-                return new SplitRequest(borderKey, l, r);
-            } else { // rootのとき、新たなrootを作る
-                InteriorNode newRoot = new InteriorNode();
-                newRoot.keys[0] = borderKey;
-                newRoot.child[0] = l;
-                newRoot.child[1] = r;
-                newRoot.nkeys = 1;
-                root = newRoot;
-                return null;
-            }
->>>>>>> masstree
-
         }
 
         public boolean delete(String k){
@@ -478,13 +463,8 @@ public class Bplustree {
                     return true; // 親に知らせる
                 }
                 return false; // nkeysが1以上のとき、そのまま終了
-<<<<<<< HEAD
             }
             else{ // key(k)がまだない場合、何もしない
-=======
-            } else { // key(k)がまだない場合、何もしない
-                System.out.println("The key " + k + " is already deleted");
->>>>>>> masstree
                 return false;
             }
         }
@@ -582,6 +562,44 @@ public class Bplustree {
         return l;
     }
 
+    // // 可視化用dotファイル用
+    // private static String makedot(Node t){ 
+    //     String text = "";
+    //     if(t != null){
+    //         if(t instanceof LeafNode){
+    //             text += "node" + t.serial + "[label = \"";
+    //             for(int i = 0; i < t.nkeys - 1; i++){
+    //                 text += "<f" + i + "> "+ t.keys[i] + "|";
+    //             }
+    //             text += "<f" + t.nkeys + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
+    //         }
+    //         if(t instanceof InteriorNode){
+    //             text += "node" + t.serial + "[label = \"";
+    //             for(int i = 0; i < t.nkeys; i++){
+    //                 text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+    //             }
+    //             text += "<f" + t.nkeys + ">\"];\n";
+    //             for(int i = 0; i < t.nkeys + 1; i++){
+    //                 text += makedot(((InteriorNode)t).child[i]);
+    //                 text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
+    //             }
+    //         }
+    //     }   
+    //     return text;
+    // }
+
+    // // 可視化用dotファイル出力
+    // public void makeDotFile(){ 
+    //     try{
+    //         FileWriter fw = new FileWriter("BPTshow.dot");
+    //         fw.write("digraph G {\n  node [shape = record,height=.1];\n");
+    //         fw.write(makedot(this.root));
+    //         fw.write("}");
+    //         fw.close();
+    //     } catch (IOException ex){
+    //         ex.printStackTrace();
+    //     }
+    // }
 
     public static void main(String[] args){
     }

@@ -543,69 +543,66 @@ public class MassTree {
             }
         }
     
-<<<<<<< HEAD
-=======
-        // 可視化用dotファイル用
-        public static String makedot(Node t){ 
-            String text = "";
-            if(t != null){
-                if(t instanceof BorderNode){
-                    boolean[] nextLayerExist = new boolean[t.nkeys];
-                    text += "node" + t.serial + "[label = \"";
-                    for(int i = 0; i < t.nkeys - 1; i++){
-                        if(((BorderNode)t).data[i] instanceof Layer){
-                            text += "<f" + i + "> "+ t.keys[i] + "|";
-                            if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
-                                nextLayerExist[i] = true;
-                            }
-                        } else {
-                            text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
-                        }
-                    }
-                    if(((BorderNode)t).data[t.nkeys - 1] instanceof Layer){
-                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-                        if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
-                            nextLayerExist[t.nkeys - 1] = true;
-                        }
-                    } else {
-                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
-                    }
-                    for(int i = 0; i < t.nkeys; i++){
-                        if(nextLayerExist[i] == true){
-                            text += makedot(((Layer)((BorderNode)t).data[i]).nextLayer.root);
-                            text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((Layer)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
-                        }
-                    }
-                }
-                if(t instanceof InteriorNode){
-                    text += "node" + t.serial + "[label = \"";
-                    for(int i = 0; i < t.nkeys; i++){
-                        text += "<f" + i + "> " + "|" + t.keys[i] + "|";
-                    }
-                    text += "<f" + t.nkeys + ">\"];\n";
-                    for(int i = 0; i < t.nkeys + 1; i++){
-                        text += makedot(((InteriorNode)t).child[i]);
-                        text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
-                    }
-                }
-            }   
-            return text;
-        }
+        // // 可視化用dotファイル用
+        // public static String makedot(Node t){ 
+        //     String text = "";
+        //     if(t != null){
+        //         if(t instanceof BorderNode){
+        //             boolean[] nextLayerExist = new boolean[t.nkeys];
+        //             text += "node" + t.serial + "[label = \"";
+        //             for(int i = 0; i < t.nkeys - 1; i++){
+        //                 if(((BorderNode)t).data[i] instanceof Layer){
+        //                     text += "<f" + i + "> "+ t.keys[i] + "|";
+        //                     if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
+        //                         nextLayerExist[i] = true;
+        //                     }
+        //                 } else {
+        //                     text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
+        //                 }
+        //             }
+        //             if(((BorderNode)t).data[t.nkeys - 1] instanceof Layer){
+        //                 text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
+        //                 if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
+        //                     nextLayerExist[t.nkeys - 1] = true;
+        //                 }
+        //             } else {
+        //                 text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
+        //             }
+        //             for(int i = 0; i < t.nkeys; i++){
+        //                 if(nextLayerExist[i] == true){
+        //                     text += makedot(((Layer)((BorderNode)t).data[i]).nextLayer.root);
+        //                     text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((Layer)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
+        //                 }
+        //             }
+        //         }
+        //         if(t instanceof InteriorNode){
+        //             text += "node" + t.serial + "[label = \"";
+        //             for(int i = 0; i < t.nkeys; i++){
+        //                 text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+        //             }
+        //             text += "<f" + t.nkeys + ">\"];\n";
+        //             for(int i = 0; i < t.nkeys + 1; i++){
+        //                 text += makedot(((InteriorNode)t).child[i]);
+        //                 text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
+        //             }
+        //         }
+        //     }   
+        //     return text;
+        // }
 
-        // 可視化用dotファイル出力
-        public void makeDotFile(){
-            try{
-                FileWriter fw = new FileWriter("MassTreeShow.dot");
-                fw.write("digraph G {\n  node [shape = record,height=.1];\n");
-                fw.write(makedot(this.root));
-                fw.write("}");
-                fw.close();
-            } catch (IOException ex){
-                ex.printStackTrace();
-            }
-        }
+        // // 可視化用dotファイル出力
+        // public void makeDotFile(){
+        //     try{
+        //         FileWriter fw = new FileWriter("MassTreeShow.dot");
+        //         fw.write("digraph G {\n  node [shape = record,height=.1];\n");
+        //         fw.write(makedot(this.root));
+        //         fw.write("}");
+        //         fw.close();
+        //     } catch (IOException ex){
+        //         ex.printStackTrace();
+        //     }
+        // }
     
->>>>>>> masstree
         //範囲検索
         public List<String> getrange(String startKey, int n){
             if (this.root == null){
