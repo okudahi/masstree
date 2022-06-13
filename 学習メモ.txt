@@ -1,0 +1,27 @@
+ガイダンス土曜日15:30～
+githubpages
+sshキーのパスワード
+充電器持ってくる
+
+・配列の宣言
+int[] list = int[10]
+int.length #=10
+
+・shallowなコピーとdeepなコピー
+int[] src = {12, 24, 18};
+int[] dst = Arrays.copyOf(src, 3);
+これは配列の中身がpremitive型のときのみdeepなコピーとなる
+参照型でdeepなコピーがしたい場合は、for文の中でnewで宣言する
+premitive型の一覧・・・short型、byte型、long型、int型、double型、float型、char型、boolean型
+
+・StringBuffer[] ・・・Stringクラスは固定長で変更不可能な文字列を格納します。一方で、StringBufferクラスは可変長で変更・操作可能な文字列を格納します。
+また、Stringクラスでも「+」を使って文字列連結が可能ですが、この場合毎回新しいインスタンスが生成されるため、処理コストが高くなります。そのため、StringBufferという文字列操作のためのクラスが必要なんですね。 
+https://techacademy.jp/magazine/31984
+
+・プログラミング参考になるサイト
+http://www.code-magagine.com/?cat=5
+
+・リファクタリング:関数などの機能は変えずに内部の最適化をすること
+
+・C++ p2 -> b = 10
+p2は構造体変数へのポインタ、bはその構造体のメンバ変数

@@ -39,6 +39,7 @@ public class Bplustree {
         abstract public SplitRequest insert(String k, String v);
         abstract public String get(String k);
         abstract public int getrange(String startKey, String[]vals, int startIndex, int n);
+        abstract public boolean deleteWithNoRebalance(String k);
         abstract public boolean delete(String k);
     }
 
@@ -74,8 +75,7 @@ public class Bplustree {
             SplitRequest req = this.child[ki].insert(k,v); // 再帰
             if(req == null){ // 何もしない
                 return null;
-            }
-            else{ // 子が分割→SplitRequest
+            } else { // 子が分割→SplitRequest
                 int i;
                 String insertedKey = req.borderKey;
                 Node lchild = req.left;
@@ -86,8 +86,7 @@ public class Bplustree {
                     if(cmp < 0){ // k < keys[i-1]
                         this.keys[i] = this.keys[i-1];
                         this.child[i+1] = this.child[i];
-                    } 
-                    else{ // k > keys[i]
+                    } else { // k > keys[i]
                         this.keys[i] = insertedKey;
                         this.child[i+1] = rchild;
                         this.child[i] = lchild;
@@ -126,8 +125,146 @@ public class Bplustree {
             l.keys[borderIndex] = null;
             l.nkeys = borderIndex;
             r.nkeys = MAX_KEYS - borderIndex;
+<<<<<<< HEAD
             return new SplitRequest(borderKey, l, r);
+=======
+            if(this != root){ // rootでないなら親にSplitRequest送る
+                return new SplitRequest(borderKey, l, r);
+            } else { // rootのとき、新たなrootを作る
+                InteriorNode newRoot = new InteriorNode();
+                newRoot.keys[0] = borderKey;
+                newRoot.child[0] = l;
+                newRoot.child[1] = r;
+                newRoot.nkeys = 1;
+                root = newRoot;
+                return null;
+            }
+>>>>>>> masstree
 
+        }
+
+        public boolean delete(String k){
+            int ki = this.keyIndex(k);
+            boolean req = this.child[ki].delete(k); // 再帰
+            if (req == false){ // 子どもが十分な数のキーを持つ
+                return false;
+            } else { // 子どもが十分な数のキーを持たない
+                if(ki == nkeys) {return rebalance(ki-1);}
+                else {return rebalance(ki);}
+            }
+        }
+
+        private boolean rebalance(int x) {
+            if(child[x] instanceof LeafNode){
+                LeafNode a = (LeafNode)child[x];
+                LeafNode b = (LeafNode)child[x+1];
+                int an = a.nkeys;
+                int bn = b.nkeys;
+                if (an + bn <= MAX_KEYS) { // 部分木aとbを併合
+                    for (int i = 0; i < bn; i++) {
+                        a.keys[i+an] = b.keys[i];
+                        b.keys[i] = null;
+                        a.data[i+an] = b.data[i];
+                        b.data[i] = null;
+                    }
+                    a.nkeys += bn;
+                    if(b.next != null){
+                        a.next = b.next;
+                        b.next.prev = a; // リーフノード同士のポインタを修正
+                    } else {a.next = null;}
+                    b = null;
+                    for(int i = x+1; i < this.nkeys; i++){ // bが無くなったので左詰め
+                        this.keys[i-1] = this.keys[i];
+                        this.child[i] = this.child[i+1];
+                    }
+                    this.keys[this.nkeys-1] = null; // 右端のキーと子削除
+                    this.child[this.nkeys] = null;
+                    this.nkeys--;
+                    if(this.nkeys < HALF_MAX_CHILD - 1){return true;} // 下限を下回ったら親に知らせる
+                } else { // 多い方から少ない方に1個分ける
+                    if (an >= HALF_MAX_CHILD) { // bn = HALF_MAX_CHILD-2 部分木aから部分木bへ1つと移動する
+                        for(int i = bn-1; i >= 0; i--){ // iはbn-1から0まで
+                            b.keys[i+1] = b.keys[i];
+                            b.data[i+1] = b.data[i];
+                        }
+                        b.keys[0] = a.keys[an-1];
+                        b.data[0] = a.data[an-1];
+                        this.keys[x] = b.keys[0];
+                        a.keys[an-1] = null;
+                        a.data[an-1] = null;
+                        a.nkeys--;
+                        b.nkeys++;
+                    } else { // an = HALF_MAX_CHILD-2 部分木bから部分木aへと移動する
+                        a.keys[an] = b.keys[0];
+                        a.data[an] = b.data[0];
+                        for(int i = 0; i < bn-1; i++){ // iはbnから0まで
+                            b.keys[i] = b.keys[i+1];
+                            b.data[i] = b.data[i+1];
+                        }
+                        this.keys[x] = b.keys[0];
+                        b.keys[bn-1] = null;
+                        b.data[bn-1] = null;
+                        a.nkeys++;
+                        b.nkeys--;
+                    }
+                }
+                return false;
+            } else {
+                InteriorNode a = (InteriorNode)child[x];
+                InteriorNode b = (InteriorNode)child[x+1];
+                int an = a.nkeys;
+                int bn = b.nkeys;
+                if (an + bn <= MAX_KEYS) { // 部分木aとbを併合
+                    a.keys[an] = this.keys[x];
+                    a.child[1+an] = b.child[0];
+                    for (int i = 0; i < bn; i++) {
+                        a.keys[1+an+i] = b.keys[i];
+                        b.keys[i] = null;
+                        a.child[2+an+i] = b.child[i+1];
+                        b.child[i+1] = null;
+                    }
+                    a.nkeys += bn+1;
+                    b = null;
+                    for(int i = x+1; i < this.nkeys; i++){ // bが無くなったので左詰め
+                        this.keys[i-1] = this.keys[i];
+                        this.child[i] = this.child[i+1];
+                    }
+                    this.keys[this.nkeys-1] = null; // 右端のキーと子削除
+                    this.child[this.nkeys] = null;
+                    this.nkeys--;
+                    if(this.nkeys < HALF_MAX_CHILD - 1){return true;} // 下限を下回ったら親に知らせる
+                } else { // 多い方から少ない方に1個分ける
+                    if (an >= HALF_MAX_CHILD) { // bn = HALF_MAX_CHILD-2 部分木aから部分木bへと1つ移動する
+                        for(int i = bn-1; i >= 0; i--){ // iはbn-1から0まで
+                            b.keys[i+1] = b.keys[i];
+                            b.child[i+2] = b.child[i+1];
+                        }
+                        b.child[1] = b.child[0];
+                        b.keys[0] = a.keys[an-1];
+                        b.child[0] = a.child[an];
+                        this.keys[x] = a.keys[an-1];
+                        a.keys[an-1] = null;
+                        a.child[an] = null;
+                        a.nkeys--;
+                        b.nkeys++;
+                    } else { // an = HALF_MAX_CHILD-2 部分木bから部分木aへと移動する
+                        a.keys[an] = this.keys[x];
+                        a.child[an+1] = b.child[0];
+                        this.keys[x] = b.keys[0];
+                        for(int i = 0; i < bn-1; i++){ // iはbnから0まで
+                            b.keys[i] = b.keys[i+1];
+                            b.child[i] = b.child[i+1];
+                        }
+                        b.child[bn] = b.child[bn+1];
+                        this.keys[x] = b.keys[0];
+                        b.keys[bn-1] = null;
+                        b.child[bn] = null;
+                        a.nkeys++;
+                        b.nkeys--;
+                    }
+                }
+                return false;
+            }
         }
 
         // 検索:適切な位置の子をたどる
@@ -143,9 +280,9 @@ public class Bplustree {
         }
 
         // 削除:適切な位置の子をたどる
-        public boolean delete(String k){
+        public boolean deleteWithNoRebalance(String k){
             int ki = this.keyIndex(k);
-            boolean req = this.child[ki].delete(k); // 再帰
+            boolean req = this.child[ki].deleteWithNoRebalance(k); // 再帰
             if (req == false){ // 子どもが消えない→そのまま
                 return false;
             }
@@ -159,8 +296,7 @@ public class Bplustree {
                         this.keys[this.nkeys-1] = null; // 右端のキーと子削除
                         this.child[this.nkeys] = null;
                         this.nkeys--;
-                    }
-                    else{ // 消えたのが左端
+                    } else { // 消えたのが左端
                         for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
                             this.keys[i] = this.keys[i+1];
                             this.child[i] = this.child[i+1];
@@ -170,8 +306,7 @@ public class Bplustree {
                         this.child[this.nkeys] = null;
                         this.nkeys--;
                     }
-                }
-                else{ // キーが存在しない 
+                } else { // キーが存在しない 
                     return true; // 子が一つもなくなったらDeleteRequestを返す
                 }
             }
@@ -223,8 +358,7 @@ public class Bplustree {
                     if(cmp < 0){ // k < keys[i-1]
                         this.keys[i] = this.keys[i-1]; // 右にずらす
                         this.data[i] = this.data[i-1];
-                    } 
-                    else{ // k > keys[i-1]
+                    }  else { // k > keys[i-1]
                         this.keys[i] = k;
                         this.data[i] = v;
                         this.nkeys++; // 空いたところに挿入
@@ -267,6 +401,25 @@ public class Bplustree {
             return new SplitRequest(borderKey, l, r);
         }
 
+        // 削除
+        public boolean delete(String k){
+            int ki = this.isKeyExist(k);
+            if (ki >= 0){ // key(k)がもうある(ki番目に一致)とき、削除
+                for(int i = ki; i < nkeys - 1; i++){ // 左詰め
+                    keys[i] = keys[i+1];
+                    data[i] = data[i+1];
+                }
+                keys[nkeys-1] = null; // 右端のキーと値削除
+                data[nkeys-1] = null;
+                nkeys--;
+                System.out.println("the key " + k + " is deleted");
+                if(nkeys <= HALF_MAX_CHILD - 2) {return true;} // キーが足りないとき、親にリバランスを頼む
+            } else { // key(k)がまだない場合、何もしない
+                System.out.println("The key " + k + " is already deleted");
+            }
+            return false;
+        }
+
         // 検索
         public String get(String k){
             int ki = this.isKeyExist(k);
@@ -300,16 +453,16 @@ public class Bplustree {
             return c;
         }
 
-        // 削除
-        public boolean delete(String k){
+        // 削除(リバランスしない)
+        public boolean deleteWithNoRebalance(String k){
             int ki = this.isKeyExist(k);
             if (ki >= 0){ // key(k)がもうある(ki番目に一致)とき、削除
                 for(int i = ki; i < this.nkeys - 1; i++){ // 左詰め
                     this.keys[i] = this.keys[i+1];
                     this.data[i] = this.data[i+1];
                 }
-                this.keys[this.nkeys] = null; // 右端のキーと値削除
-                this.data[this.nkeys] = null;
+                this.keys[this.nkeys-1] = null; // 右端のキーと値削除
+                this.data[this.nkeys-1] = null;
                 this.nkeys--;
                 if(nkeys == 0){ // キーが一つもなくなったらノードを削除
                     if(this.next != null && this.prev != null){
@@ -325,12 +478,16 @@ public class Bplustree {
                     return true; // 親に知らせる
                 }
                 return false; // nkeysが1以上のとき、そのまま終了
+<<<<<<< HEAD
             }
             else{ // key(k)がまだない場合、何もしない
+=======
+            } else { // key(k)がまだない場合、何もしない
+                System.out.println("The key " + k + " is already deleted");
+>>>>>>> masstree
                 return false;
             }
         }
-
     }
 
 
@@ -363,8 +520,7 @@ public class Bplustree {
     public void put(String k, String x){
         if (root == null) {
             root = new LeafNode(k,x);
-        }
-        else {
+        } else {
             SplitRequest req = root.insert(k,x);
             if (req == null) {
                 // 何もしない
@@ -381,16 +537,34 @@ public class Bplustree {
     }
 
     // 削除・・・リバランスしない(Masstree用)
+    public void deleteWithNoRebalance(String key){
+        if (root == null) {
+            System.out.println("the tree is empty");
+        }
+        else{
+            boolean req = this.root.deleteWithNoRebalance(key);
+            if (req == false){ // rootからnullが返ってきたとき、何もしない
+
+            } else { // rootがなくなったとき、木が空になる
+                root = null;
+            }
+        }
+    }
+
+    // 削除
     public void delete(String key){
         if (root == null) {
         }
         else{
-            boolean req = this.root.delete(key);
-            if (req == false){ // rootからnullが返ってきたとき、何もしない
-
-            }
-            else{ // rootがなくなったとき、木が空になる
-                root = null;
+            boolean req = root.delete(key);
+            if(req == true){
+                if(root.nkeys >= 1){ // 何もしない
+                } else {
+                    if(root instanceof LeafNode){ // 削除したキーが最後の一つだったとき
+                        root = null;
+                    }
+                    else{root = ((InteriorNode)root).child[0];} // 木の高さが一段減るs
+                }
             }
         }
     }
