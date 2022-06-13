@@ -397,10 +397,10 @@ public class Bplustree {
                 keys[nkeys-1] = null; // 右端のキーと値削除
                 data[nkeys-1] = null;
                 nkeys--;
-                System.out.println("the key " + k + " is deleted");
+                // System.out.println("the key " + k + " is deleted");
                 if(nkeys <= HALF_MAX_CHILD - 2) {return true;} // キーが足りないとき、親にリバランスを頼む
             } else { // key(k)がまだない場合、何もしない
-                System.out.println("The key " + k + " is already deleted");
+                // System.out.println("The key " + k + " is already deleted");
             }
             return false;
         }
@@ -519,7 +519,7 @@ public class Bplustree {
     // 削除・・・リバランスしない(Masstree用)
     public void deleteWithNoRebalance(String key){
         if (root == null) {
-            System.out.println("the tree is empty");
+            // System.out.println("the tree is empty");
         }
         else{
             boolean req = this.root.deleteWithNoRebalance(key);
