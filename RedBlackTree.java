@@ -202,9 +202,6 @@ public class RedBlackTree {
             t.lst.color = false;
             t.lst = balanceL(t.lst);
         }
-        else {
-            throw new RuntimeException("(L) This program is buggy");
-        }
         return t;
     }
 
@@ -242,9 +239,6 @@ public class RedBlackTree {
             t.rst.color = false;
             t.rst = balanceR(t.rst);
         }
-        else {
-            throw new RuntimeException("(R) This program is buggy");
-        }
         return t;
     }
 
@@ -253,26 +247,8 @@ public class RedBlackTree {
         active = false;
         root = delete(root, key);
     }
-
-
-    // 赤黒木の表示
-    // public String toString() {
-    //     return toGraph("", "", root).replaceAll("\\s+$", "");
-    // }
-
-    // private String toGraph(String head, String bar, Node t) {
-    //     String graph = "";
-    //     if (t != null) {
-    //         graph += toGraph(head + "　　", "／", t.rst);
-    //         String node = t.color == false ? "R" : "B";
-    //         node += ":" + t.key;
-    //         node += ":" + t.value;
-    //         graph += String.format("%s%s%s%n", head, bar, node);
-    //         graph += toGraph(head + "　　", "＼", t.lst);
-    //     }
-    //     return graph;
-    // }
-
+    
+    // dotFile出力用
     private static String makedot(Node t){
         String text = "";
         if(t != null){
@@ -294,7 +270,7 @@ public class RedBlackTree {
         return text;
     }
 
-    // メインルーチン
+    // テスト
     public static void main(String[] args) {
         final int n = 40;
         RedBlackTree m = new RedBlackTree();
