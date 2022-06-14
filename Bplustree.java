@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Bplustree {
 
-    final private static int MAX_CHILD = 15;
+    final static int MAX_CHILD = 12;
     final private static int MAX_KEYS = MAX_CHILD - 1;
     final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
 
@@ -156,7 +156,7 @@ public class Bplustree {
                     if(b.next != null){
                         a.next = b.next;
                         b.next.prev = a; // リーフノード同士のポインタを修正
-                    } else {a.next = null;}
+                    }
                     b = null;
                     for(int i = x+1; i < this.nkeys; i++){ // bが無くなったので左詰め
                         this.keys[i-1] = this.keys[i];

@@ -9,12 +9,12 @@ public class RedBlackTree {
 
     private class Node{
         boolean color; // true:black, false:red
-        Integer key;
-        Integer value;
+        String key;
+        String value;
         Node lst = null; // 左の子
         Node rst = null; // 右の子
 
-        Node(boolean color, Integer key, Integer value) {
+        Node(boolean color, String key, String value) {
             this.color = color;
             this.key = key;
             this.value = value;
@@ -89,7 +89,7 @@ public class RedBlackTree {
     }
 
 // ノードへの挿入
-    private Node insert(Node t, Integer key, Integer x) {
+    private Node insert(Node t, String key, String x) {
         if (t == null) { 
             active = true; 
             return new Node(false, key, x); 
@@ -109,15 +109,15 @@ public class RedBlackTree {
         }
     }
 
-    // 挿入操作
-    public void insert(Integer key, Integer x) {
+    // 挿入
+    public void put(String key, String x) {
         active = false;
         root = insert(root, key, x);
         root.color = true;
     }
 
-    // キーの検索
-    public Integer lookup(Integer key) {
+    // 検索
+    public String get(String key) {
         Node t = root;
         while (t != null) {
             int cmp = key.compareTo(t.key);
@@ -130,7 +130,7 @@ public class RedBlackTree {
 
     // 削除
 
-    private Node delete(Node t, Integer key) {
+    private Node delete(Node t, String key) {
         if (t == null) return null;
         int cmp = key.compareTo(t.key);
         if (cmp < 0) {
@@ -243,7 +243,7 @@ public class RedBlackTree {
     }
 
     // 指定したキーを持つノードの削除
-    public void delete(Integer key) {
+    public void delete(String key) {
         active = false;
         root = delete(root, key);
     }
@@ -274,12 +274,12 @@ public class RedBlackTree {
     public static void main(String[] args) {
         final int n = 40;
         RedBlackTree m = new RedBlackTree();
-        var keys = new ArrayList<Integer>();
-        for (int i = 0; i < n; i++) keys.add(i);
+        var keys = new ArrayList<String>();
+        for (int i = 0; i < n; i++) keys.add(Integer.toString(i));
         java.util.Collections.shuffle(keys);
-        for (int i = 0; i < n; i++) m.insert(keys.get(i), i);
+        for (int i = 0; i < n; i++) m.put(keys.get(i), Integer.toString(i));
         var deleteKeys = keys.subList(0, 10);
-        for (int key: deleteKeys) m.delete(key);
+        for (String key: deleteKeys) m.delete(key);
 
         try {
             File file = new File("RBTTemplate.dot");// 読み込み

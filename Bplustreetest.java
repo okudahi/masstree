@@ -21,13 +21,14 @@ public class Bplustreetest {
         // for(int i = 0; i < intArray0.length; i++){
         //     tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
         // }
-        for (int i = 99; i > 9; i--){
+        for (int i = 999; i > 0; i--){
             tree.put(String.valueOf(i),String.valueOf(i));
         }
         // tree.makeDotFile();
-        for (int i = 99; i > 29; i--){
+        for (int i = 500; i > 203; i--){
             tree.delete(String.valueOf(i));
         }
+        tree.delete("203");
         // tree.makeDotFile();
         // assertEqual(tree.root.nkeys, 0);
         // List<String> getr = tree.getrange(String.valueOf(intArray0[0]),50);

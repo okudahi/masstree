@@ -37,10 +37,10 @@ public class MassTree {
 
     public static class MassTreeNode {
 
-        final static int MAX_CHILD = 15;
+        final static int MAX_CHILD = 12;
         final static int MAX_KEYS = MAX_CHILD - 1;
         final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
-        final private static int LEN_KEYSLICE = 8;
+        final static int LEN_KEYSLICE = 8;
     
         
         // Node
