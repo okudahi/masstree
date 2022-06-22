@@ -29,7 +29,7 @@ public class Evaluate {
     }
 
     public static void main(String[] args){
-        String name = "500prefix_20random(substring_removed)";
+        String name = args[0] + "prefix_20random(substring_removed)";
         System.out.println("Masstree:MAX_CHILD = " + MassTree.MassTreeNode.MAX_CHILD);
         System.out.println("Masstree:LEN_KEYSLICE = " + MassTree.MassTreeNode.LEN_KEYSLICE);
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
@@ -221,7 +221,7 @@ public class Evaluate {
 
     public static void exportCsv(long[] data, String name){
         try {
-            File file = new File("C:/Users/ocelo/miniproject/data/" + name + ".csv");
+            File file = new File("./data/" + name + ".csv");
             file.createNewFile();
             FileWriter fw = new FileWriter(file, false);
             PrintWriter pw = new PrintWriter(new BufferedWriter(fw));

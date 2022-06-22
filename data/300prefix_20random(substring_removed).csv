@@ -1,0 +1,5 @@
+Operation,Masstree,B+tree,RedBlackTree
+put,1414000,531000,600000
+get,1466000,574000,566000
+getrange,196000,102000
+delete,802000,591000,504000

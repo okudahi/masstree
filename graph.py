@@ -1,6 +1,7 @@
 import pandas as pd
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.pyplot as plt
+import csv 
 
 data = pd.read_csv("data/20prefix_40random.csv",encoding='shift_jis')
 data.head(3)
