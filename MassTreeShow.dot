@@ -1,54 +1,14 @@
 digraph G {
   node [shape = record,height=.1];
 node0[label = "<f0> 10|<f1> 11"];
-node8[label = "<f0> |55|<f1> |62|<f2> |76|<f3> |84|<f4>"];
-node2[label = "<f0> 515|<f1> 53"];
-node20[label = "<f0> 3"];
-"node2":f1 -> "node20"[color = red];
-"node8":f0 -> "node2"
-node25[label = "<f0> 574|<f1> 58|<f2> 595"];
-node18[label = "<f0> 5"];
-"node25":f1 -> "node18"[color = red];
-"node8":f1 -> "node25"
-node7[label = "<f0> 62|<f1> 660|<f2> 698|<f3> 700"];
-node12[label = "<f0> 1"];
-"node7":f0 -> "node12"[color = red];
-"node8":f2 -> "node7"
-node26[label = "<f0> 768|<f1> 780|<f2> 793|<f3> 822|<f4> 832"];
-"node8":f3 -> "node26"
-node14[label = "<f0> 884|<f1> 95|<f2> 96|<f3> 993"];
-node24[label = "<f0> 5"];
-"node14":f1 -> "node24"[color = red];
-node27[label = "<f0> 8"];
-"node14":f2 -> "node27"[color = red];
-"node8":f4 -> "node14"
-"node0":f0 -> "node8"[color = red];
-node4[label = "<f0> |11|<f1> |20|<f2> |27|<f3> |37|<f4>"];
-node1[label = "<f0> 104"];
-"node4":f0 -> "node1"
-node22[label = "<f0> 11|<f1> 131|<f2> 16|<f3> 17"];
-node16[label = "<f0> 9"];
-"node22":f0 -> "node16"[color = red];
-node28[label = "<f0> 1|<f1> 6"];
-"node22":f2 -> "node28"[color = red];
-node19[label = "<f0> 8"];
-"node22":f3 -> "node19"[color = red];
-"node4":f1 -> "node22"
-node9[label = "<f0> 20|<f1> 23"];
-node23[label = "<f0> 9"];
-"node9":f0 -> "node23"[color = red];
-node29[label = "<f0> 4|<f1> 6"];
-"node9":f1 -> "node29"[color = red];
-"node4":f2 -> "node9"
-node15[label = "<f0> 331|<f1> 34|<f2> 362"];
-node11[label = "<f0> 1|<f1> 7"];
-"node15":f1 -> "node11"[color = red];
-"node4":f3 -> "node15"
-node3[label = "<f0> 386|<f1> 41|<f2> 436|<f3> 44"];
-node17[label = "<f0> 7|<f1> 8"];
-"node3":f1 -> "node17"[color = red];
-node21[label = "<f0> 0|<f1> 5"];
-"node3":f3 -> "node21"[color = red];
-"node4":f4 -> "node3"
+node1[label = "<f0> 00|<f1> 01"];
+node2[label = "<f0> 0|<f1> 3|<f2> 4|<f3> 8"];
+"node1":f0 -> "node2"[color = red];
+node3[label = "<f0> 0|<f1> 1|<f2> 2"];
+"node1":f1 -> "node3"[color = red];
+"node0":f0 -> "node1"[color = red];
+node4[label = "<f0> 00"];
+node5[label = "<f0> 0|<f1> 2|<f2> 3|<f3> 4|<f4> 5"];
+"node4":f0 -> "node5"[color = red];
 "node0":f1 -> "node4"[color = red];
 }

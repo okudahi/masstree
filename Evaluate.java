@@ -29,7 +29,7 @@ public class Evaluate {
     }
 
     public static void main(String[] args){
-        String name = "20prefix_40random";
+        String name = "500prefix_20random(substring_removed)";
         System.out.println("Masstree:MAX_CHILD = " + MassTree.MassTreeNode.MAX_CHILD);
         System.out.println("Masstree:LEN_KEYSLICE = " + MassTree.MassTreeNode.LEN_KEYSLICE);
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
@@ -42,7 +42,7 @@ public class Evaluate {
         int[] intKeyArray = new Random().ints(numKeys + 100000, 100000000, 999999999).toArray();
         int[] IndexArray = new Random().ints(numKeys/2,0, numKeys + 99999).toArray();
         String[] Keys = new String[numKeys + 100000];
-        int len_prefix = 500;
+        int len_prefix = Integer.parseInt(args[0]);
         int len_random = 20;
         String prefix = "";
         for(int i = 0; i < len_prefix; i++){
@@ -221,7 +221,7 @@ public class Evaluate {
 
     public static void exportCsv(long[] data, String name){
         try {
-            File file = new File("C:/code/miniproject/data/" + name + ".csv");
+            File file = new File("C:/Users/ocelo/miniproject/data/" + name + ".csv");
             file.createNewFile();
             FileWriter fw = new FileWriter(file, false);
             PrintWriter pw = new PrintWriter(new BufferedWriter(fw));

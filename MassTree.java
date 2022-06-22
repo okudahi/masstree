@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.Math;
 
 public class MassTree {
@@ -15,14 +17,14 @@ public class MassTree {
 
     // 検索
     public String get(String key){
-        MassTreeNode.LayerOrDatum val = this.rootTree.get(key);
+        MassTreeNode.LayerOrDatum val = this.rootTree.get(key, 0);
         if(val == null) {return null;}
         else {return ((MassTreeNode.Datum)val).getData();} 
     }
 
     // 挿入
     public void put(String k, String x){
-        this.rootTree.insert(k, x);
+        this.rootTree.insert(k, x, 0);
     }
 
     // 削除
@@ -39,6 +41,7 @@ public class MassTree {
 
         final static int MAX_CHILD = 12;
         final static int MAX_KEYS = MAX_CHILD - 1;
+        // split するとき child の数は MAX_CHILD + 1。奇数だった時に右の子が多くなるように HALF_MAX_CHILD = (MAX_CHILD + 1) / 2
         final private static int HALF_MAX_CHILD = ((MAX_CHILD + 1) / 2);
         final static int LEN_KEYSLICE = 8;
     
@@ -73,8 +76,8 @@ public class MassTree {
                 return i;
             }
     
-            abstract public SplitRequest insert(String k, String v, String suf);
-            abstract public LayerOrDatum get(String k);
+            abstract public SplitRequest insert(String k, String v, int sliceIndex);
+            abstract public LayerOrDatum get(String k, int sliceIndex);
             abstract public int getrange(String startKeySlice, String suffix, String[] vals, int startIndex, int n);
             abstract public boolean delete(String k, String suf);
         }
@@ -135,9 +138,9 @@ public class MassTree {
             }
     
             // internalノードへのキーkの挿入
-            public SplitRequest insert(String k, String v, String suf) {
+            public SplitRequest insert(String k, String v, int sliceIndex) {
                 int ki = this.keyIndex(k);
-                SplitRequest req = this.child[ki].insert(k,v,suf); // 再帰
+                SplitRequest req = this.child[ki].insert(k,v,sliceIndex); // 再帰
                 if(req == null){ // 何もしない
                     return null;
                 } else { // 子が分割→SplitRequest
@@ -194,9 +197,9 @@ public class MassTree {
             }
     
             // 検索:適切な位置の子をたどる
-            public LayerOrDatum get(String k){
+            public LayerOrDatum get(String k, int sliceIndex){
                 int ki = this.keyIndex(k);
-                return this.child[ki].get(k);
+                return this.child[ki].get(k, sliceIndex);
             }
 
     
@@ -274,13 +277,15 @@ public class MassTree {
             }
     
             // Borderノードへのキーk、データx、接尾辞sufの挿入
-            public SplitRequest insert(String k, String v, String suf) {
-                int ki = isKeyExist(k);
+            public SplitRequest insert(String k, String v, int sliceIndex) {
+                String keyslice = k.substring(sliceIndex, Math.min(k.length(), sliceIndex+LEN_KEYSLICE));
+                int ki = isKeyExist(keyslice);
                 if(ki >= 0){ // keysliceがある場合
                     LayerOrDatum val = data[ki];
                     if(val instanceof Layer){
-                        ((Layer)val).getNextLayer().insert(suf, v);
+                        ((Layer)val).getNextLayer().insert(k, v, sliceIndex+LEN_KEYSLICE);
                     } else { // val instanceof Datum
+                        String suf = k.substring(Math.min(k.length(), sliceIndex+LEN_KEYSLICE));
                         if(((Datum)val).getSuffix().equals(suf)){ // keyが完全に一致→上書き
                             ((Datum)val).value = v;
                         }
@@ -288,8 +293,8 @@ public class MassTree {
                             String suffix0 = ((Datum)val).getSuffix(); // 元々あったsuffix
                             String val0 = ((Datum)val).value; // 元々あったvalue
                             data[ki] = new Layer();
-                            ((Layer)data[ki]).nextLayer.insert(suffix0, val0);
-                            ((Layer)data[ki]).nextLayer.insert(suf, v);
+                            ((Layer)data[ki]).nextLayer.insert(suffix0, val0, 0);
+                            ((Layer)data[ki]).nextLayer.insert(k, v, sliceIndex+LEN_KEYSLICE);
                         }
                     }
                     return null;
@@ -297,21 +302,23 @@ public class MassTree {
                 else{
                     // keysliceがまだない場合、このB+Treeに挿入
                     int i;
+                    String suf = k.substring(Math.min(k.length(), sliceIndex+LEN_KEYSLICE));
+                    Datum newChild = new Datum(v, suf);
                     for(i = nkeys; i > 0; i--){ // iはnkeysから1まで
-                        int cmp = k.compareTo(this.keys[i-1]);
+                        int cmp = keyslice.compareTo(this.keys[i-1]);
                         if(cmp < 0){ // k < keys[i-1]
                             this.keys[i] = this.keys[i-1]; // 右にずらす
                             this.data[i] = this.data[i-1];
                         } else { // k > keys[i-1]
-                            this.keys[i] = k;
-                            this.data[i] = new Datum(v, suf);
+                            this.keys[i] = keyslice;
+                            this.data[i] = newChild;
                             this.nkeys++; // 空いたところに挿入
                             break;
                         }
                     }
                     if(i == 0){ // k < keys[0]
-                        this.keys[0] = k; // 左端に挿入
-                        this.data[0] = new Datum(v, suf);;
+                        this.keys[0] = keyslice; // 左端に挿入
+                        this.data[0] = newChild;
                         this.nkeys++;
                     }
                     if(this.nkeys > MAX_KEYS){
@@ -324,7 +331,7 @@ public class MassTree {
     
             // Borderノードでの分割
             SplitRequest split() {
-                int borderIndex = HALF_MAX_CHILD - 1; // key[j]を親ノードに挿入、他を分割
+                int borderIndex = HALF_MAX_CHILD; // key[j]を親ノードに挿入、他を分割
                 BorderNode l = this;
                 BorderNode r = new BorderNode();
                 for(int i = borderIndex; i < MAX_KEYS + 1; i++ ){ // rとlに分配
@@ -347,8 +354,9 @@ public class MassTree {
             }
     
             // 検索
-            public LayerOrDatum get(String k){
-                int ki = this.isKeyExist(k);
+            public LayerOrDatum get(String k, int sliceIndex){
+                String keyslice = k.substring(sliceIndex, Math.min(k.length(), sliceIndex + LEN_KEYSLICE)); 
+                int ki = this.isKeyExist(keyslice);
                 if (ki < 0){ // キーkが無い
                     return null;
                 }
@@ -484,12 +492,12 @@ public class MassTree {
     
     
         // MassTreeNodeへの挿入
-        void insert(String key, String value){ // tree
+        void insert(String key, String value, int sliceIndex){ // tree
             if(this.root == null){
                 root = new BorderNode(key,value);
                 return;
             }
-            SplitRequest req = this.root.insert(key.substring(0, Math.min(key.length(), LEN_KEYSLICE)), value, key.substring(Math.min(key.length(), LEN_KEYSLICE)));
+            SplitRequest req = this.root.insert(key, value, sliceIndex);
             if (req == null) {
                 // 何もしない
             } else {
@@ -504,7 +512,7 @@ public class MassTree {
         }
     
         // MassTreeNodeの根
-        private Node root;
+        Node root;
     
         // コンストラクタ
         public MassTreeNode() {
@@ -512,15 +520,14 @@ public class MassTree {
         }
     
         // get(MassTreeValを返す)
-        LayerOrDatum get(String key){
+        LayerOrDatum get(String key, int sliceIndex){
             if(this.root == null){return null;}
-            String keyslice = key.substring(0, Math.min(LEN_KEYSLICE, key.length())); // 8文字で切る
-            LayerOrDatum val = this.root.get(keyslice);
+            LayerOrDatum val = this.root.get(key, sliceIndex);
             if(val == null){return null;}
             else if(val instanceof Layer){
-                return ((Layer) val).getNextLayer().get(key.substring(LEN_KEYSLICE)); // 次の8文字で検索
+                return ((Layer) val).getNextLayer().get(key, sliceIndex + LEN_KEYSLICE); // 次の8文字で検索
             } else { // val instanceof Datum
-                if(val.getSuffix().equals(key.substring(Math.min(LEN_KEYSLICE, key.length())))){ // キーが一致
+                if(val.getSuffix().equals(key.substring(Math.min(sliceIndex + LEN_KEYSLICE, key.length())))){ // キーが一致
                     return val;
                 } else { // キーがない
                     return null;
@@ -543,65 +550,65 @@ public class MassTree {
             }
         }
     
-        // // 可視化用dotファイル用
-        // public static String makedot(Node t){ 
-        //     String text = "";
-        //     if(t != null){
-        //         if(t instanceof BorderNode){
-        //             boolean[] nextLayerExist = new boolean[t.nkeys];
-        //             text += "node" + t.serial + "[label = \"";
-        //             for(int i = 0; i < t.nkeys - 1; i++){
-        //                 if(((BorderNode)t).data[i] instanceof Layer){
-        //                     text += "<f" + i + "> "+ t.keys[i] + "|";
-        //                     if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
-        //                         nextLayerExist[i] = true;
-        //                     }
-        //                 } else {
-        //                     text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
-        //                 }
-        //             }
-        //             if(((BorderNode)t).data[t.nkeys - 1] instanceof Layer){
-        //                 text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
-        //                 if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
-        //                     nextLayerExist[t.nkeys - 1] = true;
-        //                 }
-        //             } else {
-        //                 text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
-        //             }
-        //             for(int i = 0; i < t.nkeys; i++){
-        //                 if(nextLayerExist[i] == true){
-        //                     text += makedot(((Layer)((BorderNode)t).data[i]).nextLayer.root);
-        //                     text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((Layer)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
-        //                 }
-        //             }
-        //         }
-        //         if(t instanceof InteriorNode){
-        //             text += "node" + t.serial + "[label = \"";
-        //             for(int i = 0; i < t.nkeys; i++){
-        //                 text += "<f" + i + "> " + "|" + t.keys[i] + "|";
-        //             }
-        //             text += "<f" + t.nkeys + ">\"];\n";
-        //             for(int i = 0; i < t.nkeys + 1; i++){
-        //                 text += makedot(((InteriorNode)t).child[i]);
-        //                 text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
-        //             }
-        //         }
-        //     }   
-        //     return text;
-        // }
+        // 可視化用dotファイル用
+        public static String makedot(Node t){ 
+            String text = "";
+            if(t != null){
+                if(t instanceof BorderNode){
+                    boolean[] nextLayerExist = new boolean[t.nkeys];
+                    text += "node" + t.serial + "[label = \"";
+                    for(int i = 0; i < t.nkeys - 1; i++){
+                        if(((BorderNode)t).data[i] instanceof Layer){
+                            text += "<f" + i + "> "+ t.keys[i] + "|";
+                            if(((Layer)((BorderNode)t).data[i]).nextLayer.root != null){
+                                nextLayerExist[i] = true;
+                            }
+                        } else {
+                            text += "<f" + i + "> "+ t.keys[i] + ((Datum)((BorderNode)t).data[i]).suffix + "|";
+                        }
+                    }
+                    if(((BorderNode)t).data[t.nkeys - 1] instanceof Layer){
+                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + "\"];\n";
+                        if(((Layer)((BorderNode)t).data[t.nkeys - 1]).nextLayer.root != null){
+                            nextLayerExist[t.nkeys - 1] = true;
+                        }
+                    } else {
+                        text += "<f" + (t.nkeys - 1) + "> "+ t.keys[t.nkeys - 1] + ((Datum)((BorderNode)t).data[t.nkeys - 1]).suffix + "\"];\n";
+                    }
+                    for(int i = 0; i < t.nkeys; i++){
+                        if(nextLayerExist[i] == true){
+                            text += makedot(((Layer)((BorderNode)t).data[i]).nextLayer.root);
+                            text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((Layer)((BorderNode)t).data[i]).nextLayer.root.serial + "\"[color = red];\n"; 
+                        }
+                    }
+                }
+                if(t instanceof InteriorNode){
+                    text += "node" + t.serial + "[label = \"";
+                    for(int i = 0; i < t.nkeys; i++){
+                        text += "<f" + i + "> " + "|" + t.keys[i] + "|";
+                    }
+                    text += "<f" + t.nkeys + ">\"];\n";
+                    for(int i = 0; i < t.nkeys + 1; i++){
+                        text += makedot(((InteriorNode)t).child[i]);
+                        text += "\"node" + t.serial + "\":f" + i + " -> \"node" + ((InteriorNode)t).child[i].serial + "\"\n"; 
+                    }
+                }
+            }   
+            return text;
+        }
 
-        // // 可視化用dotファイル出力
-        // public void makeDotFile(){
-        //     try{
-        //         FileWriter fw = new FileWriter("MassTreeShow.dot");
-        //         fw.write("digraph G {\n  node [shape = record,height=.1];\n");
-        //         fw.write(makedot(this.root));
-        //         fw.write("}");
-        //         fw.close();
-        //     } catch (IOException ex){
-        //         ex.printStackTrace();
-        //     }
-        // }
+        // 可視化用dotファイル出力
+        public void makeDotFile(){
+            try{
+                FileWriter fw = new FileWriter("MassTreeShow.dot");
+                fw.write("digraph G {\n  node [shape = record,height=.1];\n");
+                fw.write(makedot(this.root));
+                fw.write("}");
+                fw.close();
+            } catch (IOException ex){
+                ex.printStackTrace();
+            }
+        }
     
         //範囲検索
         public List<String> getrange(String startKey, int n){
