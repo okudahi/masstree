@@ -19,7 +19,7 @@ public class MassTree {
     public String get(String key){
         MassTreeNode.LayerOrDatum val = this.rootTree.get(key, 0);
         if(val == null) {return null;}
-        else {return ((MassTreeNode.Datum)val).getData();} 
+        else {return ((MassTreeNode.Datum)val).getData();}
     }
 
     // 挿入
@@ -33,7 +33,7 @@ public class MassTree {
     }
 
     // 範囲検索
-    public List getrange(String k, Integer n){
+    public List<String> getrange(String k, Integer n){
         return this.rootTree.getrange(k, n);
     }
 
@@ -65,15 +65,33 @@ public class MassTree {
                 return -1;
             }
             //　キーkが入るべきindexを返す
-            int keyIndex(String k){ 
+            int keyIndex(String k, int sliceIndex){ 
                 int i;
                 for(i = 0; i < this.nkeys; i++){
-                    int cmp = k.compareTo(this.keys[i]); 
+                    int cmp = compKey(k, keys[i], sliceIndex);
+                    if(cmp <= 0) return i;
+                }
+                return i;
+            }
+            
+            int keyIndex(String k){ //　キーkが入るべきindexを返す
+                int i;
+                for(i = 0; i < this.nkeys; i++){
+                    int cmp = k.compareTo(this.keys[i]);
                     if(cmp < 0){
                         break;
                     } // k < keys[i]
                 }
                 return i;
+            }
+
+            int compKey(String k, String keysi, int sliceIndex){
+                for(int j = 0; j < Math.min(LEN_KEYSLICE, k.length()-sliceIndex); j++){
+                    int cmp = k.charAt(j+sliceIndex) - keysi.charAt(j);
+                    if (cmp != 0)
+                        return cmp; // cmp > 0 => keyslice > keysi
+                }
+                return 0; // キーが一致
             }
     
             abstract public SplitRequest insert(String k, String v, int sliceIndex);
@@ -139,7 +157,7 @@ public class MassTree {
     
             // internalノードへのキーkの挿入
             public SplitRequest insert(String k, String v, int sliceIndex) {
-                int ki = this.keyIndex(k);
+                int ki = keyIndex(k,sliceIndex);
                 SplitRequest req = this.child[ki].insert(k,v,sliceIndex); // 再帰
                 if(req == null){ // 何もしない
                     return null;
@@ -198,7 +216,7 @@ public class MassTree {
     
             // 検索:適切な位置の子をたどる
             public LayerOrDatum get(String k, int sliceIndex){
-                int ki = this.keyIndex(k);
+                int ki = this.keyIndex(k, sliceIndex);
                 return this.child[ki].get(k, sliceIndex);
             }
 
@@ -355,7 +373,7 @@ public class MassTree {
     
             // 検索
             public LayerOrDatum get(String k, int sliceIndex){
-                String keyslice = k.substring(sliceIndex, Math.min(k.length(), sliceIndex + LEN_KEYSLICE)); 
+                String keyslice = k.substring(sliceIndex, Math.min(k.length(), sliceIndex + LEN_KEYSLICE));
                 int ki = this.isKeyExist(keyslice);
                 if (ki < 0){ // キーkが無い
                     return null;
@@ -413,6 +431,7 @@ public class MassTree {
         public int getrangeContinue(int ki, String[] vals, int startIndex, int n){
             int count = 0; // 読み取った値の数
             int i = ki;
+            assert(nkeys > 0);
             while(i < nkeys && count < n){
                 if(data[i] instanceof Datum){
                     vals[startIndex+count] = ((Datum)data[i]).value; // data[ki+i]
@@ -423,6 +442,7 @@ public class MassTree {
                 i++;
             }
             if(n > count && next != null){
+                // System.out.println(count);
                 return next.getrangeContinue(0, vals, startIndex+count, n-count) + count;
             }
             return count;

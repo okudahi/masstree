@@ -4,22 +4,25 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public class Evaluate {
 
 
-    public class RandStr {
+    public static class RandStr {
 
-        private static String target = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
+        private static String target = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Random rnd = new Random(0);
         // rand string create
-        public static String randStrFunc(int count) {
+        public String randStrFunc(int count) {
                 StringBuffer sb = new StringBuffer(count);
                 String res;
                 int randPos;
+                
                 for (int i = 0; i < count; i++) {
                     //ランダムインデックス取得
-                    randPos = (int) (Math.random() * target.length());
+                    randPos = (int) (rnd.nextFloat() * target.length());
                     sb.append(target.charAt(randPos));
                 }
                 res = sb.toString();
@@ -33,43 +36,42 @@ public class Evaluate {
         System.out.println("Masstree:MAX_CHILD = " + MassTree.MassTreeNode.MAX_CHILD);
         System.out.println("Masstree:LEN_KEYSLICE = " + MassTree.MassTreeNode.LEN_KEYSLICE);
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
-        int numKeys = 1000000;
+        int numInitialKeys = 100000;
+        int numKeys = 10000000;
         int numTests = 11;
-        long sumins = 0;
-        long sumget = 0;
-        long sumdel = 0;
-        long sumgetr = 0;
-        int[] intKeyArray = new Random().ints(numKeys + 100000, 100000000, 999999999).toArray();
-        int[] IndexArray = new Random().ints(numKeys/2,0, numKeys + 99999).toArray();
-        String[] Keys = new String[numKeys + 100000];
         int len_prefix = Integer.parseInt(args[0]);
         int len_random = 20;
+        int[] intKeyArray = new Random().ints(numKeys + numInitialKeys, 100000000, 999999999).toArray();
+        int[] IndexArray = new Random().ints(numKeys/2,0, numKeys + numInitialKeys - 1).toArray();
+        String[] Keys = new String[numKeys + numInitialKeys];
         String prefix = "";
         for(int i = 0; i < len_prefix; i++){
             prefix += "a";
         }
-        // for(int i = 0; i < numKeys + 100000; i++){
+        // for(int i = 0; i < numKeys + numInitialKeys; i++){
         //     Keys[i] = String.valueOf(intKeyArray[i]);
         // }
-        for(int i = 0; i < numKeys + 100000; i++){
-            Keys[i] = prefix + RandStr.randStrFunc(len_random);
+        long sumins = 0;
+        long sumget = 0;
+        long sumdel = 0;
+        long sumgetr = 0;
+        RandStr rnd = new RandStr();
+        for(int i = 0; i < numKeys + numInitialKeys; i++){
+            Keys[i] = prefix + rnd.randStrFunc(len_random);
         }
-        
-
         for(int t = 0; t < numTests; t++){
             MassTree tree = new MassTree();
-            for(int i = 0; i < 100000; i++){
+            for(int i = 0; i < numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
-
             long startTime = System.currentTimeMillis();
-            for(int i = 100000; i < numKeys + 100000; i++){
+            for(int i = numInitialKeys; i < numKeys + numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
+            // tree.rootTree.makeDotFile();
             long Time = System.currentTimeMillis() - startTime;
             if(t > 0){sumins += Time;}
             System.out.println("Masstree #" + t + ": " + numKeys + "keys inserted/" + Time + " ms");
-
             startTime = System.currentTimeMillis();
             for(int i = 0; i < numKeys/2; i++){
                 tree.get(Keys[IndexArray[i]]);
@@ -115,12 +117,12 @@ public class Evaluate {
 
         for(int t = 0; t < numTests; t++){
             Bplustree tree = new Bplustree();
-            for(int i = 0; i < 100000; i++){
+            for(int i = 0; i < numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
 
             long startTime = System.currentTimeMillis();
-            for(int i = 100000; i < numKeys + 100000; i++){
+            for(int i = numInitialKeys; i < numKeys + numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
             long Time = System.currentTimeMillis() - startTime;
@@ -172,12 +174,12 @@ public class Evaluate {
 
         for(int t = 0; t < numTests; t++){
             RedBlackTree tree = new RedBlackTree();
-            for(int i = 0; i < 100000; i++){
+            for(int i = 0; i < numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
 
             long startTime = System.currentTimeMillis();
-            for(int i = 100000; i < numKeys + 100000; i++){
+            for(int i = numInitialKeys; i < numKeys + numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
             long Time = System.currentTimeMillis() - startTime;
