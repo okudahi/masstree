@@ -38,7 +38,8 @@ public class Evaluate {
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
         int numInitialKeys = 100000;
         int numKeys = 1000000;
-        int numTests = 11;
+        int numTests = 5;
+        int dontUse = 1;
         int len_prefix = Integer.parseInt(args[0]);
         int len_random = 20;
         int[] intKeyArray = new Random().ints(numKeys + numInitialKeys, 100000000, 999999999).toArray();
@@ -70,14 +71,14 @@ public class Evaluate {
             }
             // tree.rootTree.makeDotFile();
             long Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumins += Time;}
+            if(t > dontUse){sumins += Time;}
             System.out.println("Masstree #" + t + ": " + numKeys + "keys inserted/" + Time + " ms");
             startTime = System.currentTimeMillis();
             for(int i = 0; i < numKeys/2; i++){
                 tree.get(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumget += Time;}
+            if(t > dontUse){sumget += Time;}
             System.out.println("Masstree #" + t + ": " + numKeys/2 + "keys searched/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -85,7 +86,7 @@ public class Evaluate {
                 tree.getrange(Keys[IndexArray[i]], 1000);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumgetr += Time;}
+            if(t > dontUse){sumgetr += Time;}
             System.out.println("Masstree #" + t + ": " + numKeys/10 + "times rangesearched/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -93,7 +94,7 @@ public class Evaluate {
                 tree.delete(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumdel += Time;}
+            if(t > dontUse){sumdel += Time;}
             System.out.println("Masstree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }
@@ -126,7 +127,7 @@ public class Evaluate {
                 tree.put(Keys[i], " ");
             }
             long Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumins += Time;}
+            if(t > dontUse){sumins += Time;}
             System.out.println("B+tree #" + t + ": " + numKeys + "keys inserted/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -134,7 +135,7 @@ public class Evaluate {
                 tree.get(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumget += Time;}
+            if(t > dontUse){sumget += Time;}
             System.out.println("B+tree #" + t + ": " + numKeys/2 + "keys searched/" + Time + " ms");
             
             startTime = System.currentTimeMillis();
@@ -142,7 +143,7 @@ public class Evaluate {
                 tree.getrange(Keys[IndexArray[i]], 1000);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumgetr += Time;}
+            if(t > dontUse){sumgetr += Time;}
             System.out.println("B+tree #" + t + ": " + numKeys/10 + "times rangesearched/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -150,7 +151,7 @@ public class Evaluate {
                 tree.deleteWithNoRebalance(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumdel += Time;}
+            if(t > dontUse){sumdel += Time;}
             System.out.println("B+tree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }
@@ -183,7 +184,7 @@ public class Evaluate {
                 tree.put(Keys[i], " ");
             }
             long Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumins += Time;}
+            if(t > dontUse){sumins += Time;}
             System.out.println("RedBlacktree #" + t + ": " + numKeys + "keys inserted/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -191,7 +192,7 @@ public class Evaluate {
                 tree.get(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumget += Time;}
+            if(t > dontUse){sumget += Time;}
             System.out.println("RedBlacktree #" + t + ": " + numKeys/2 + "keys searched/" + Time + " ms");
 
             startTime = System.currentTimeMillis();
@@ -199,7 +200,7 @@ public class Evaluate {
                 tree.delete(Keys[IndexArray[i]]);
             }
             Time = System.currentTimeMillis() - startTime;
-            if(t > 0){sumdel += Time;}
+            if(t > dontUse){sumdel += Time;}
             System.out.println("RedBlacktree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }

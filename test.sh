@@ -1,6 +1,7 @@
 #!bin/bash
 
-PREFIX_SIZES=(0 10 20 30 50 100 200 300 400 500)
+PREFIX_SIZES=(0 80 640)
+#PREFIX_SIZES=(0 10 20 40 80 160 320 640)
 
 exec_test() {
     for size in "${PREFIX_SIZES[@]}"
