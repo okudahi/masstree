@@ -6,7 +6,7 @@ PREFIX_SIZES=(0 80 640)
 exec_test() {
     for size in "${PREFIX_SIZES[@]}"
     do
-      java Evaluate $size
+      java -Xms1g -Xmx12g Evaluate $size
     done
 }
 

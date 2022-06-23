@@ -5,9 +5,10 @@ from matplotlib import pyplot
 
 size_array = [0, 10, 20, 30, 50, 100, 200, 300, 400, 500]
 def makefigure(operation):
-    results_mass=[]
-    results_b=[]
-    results_rb=[]
+    results_mass = []
+    results_b = []
+    results_rb =[ ]
+    result_hm = []
     if(operation == 0):
         op = "put"
     if(operation == 1):
@@ -23,10 +24,12 @@ def makefigure(operation):
         results_mass += df['Masstree'].values.tolist()
         results_b += df['B+tree'].values.tolist()
         results_rb += df['RedBlackTree'].values.tolist()
+        results_hm += df['HashMap'].values.tolist()
 
-    result_mass=[]
-    result_b=[]
-    result_rb=[]
+    result_mass = []
+    result_b = []
+    result_rb = []
+    resutt_hm = []
         
     # put
     for i in range(len(size_array)):
@@ -40,6 +43,7 @@ def makefigure(operation):
     pyplot.plot(size_array, result_mass, label='masstree')
     pyplot.plot(size_array, result_b, label='B+tree')
     pyplot.plot(size_array, result_rb, label='redblacktree')
+    pyplot.plot(size_array, result_hm, label='hashmap')
     pyplot.legend()
     pyplot.savefig("graphs/" + op + ".png")
     pyplot.show()
