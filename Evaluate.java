@@ -36,12 +36,12 @@ public class Evaluate {
         System.out.println("Masstree:MAX_CHILD = " + MassTree.MassTreeNode.MAX_CHILD);
         System.out.println("Masstree:LEN_KEYSLICE = " + MassTree.MassTreeNode.LEN_KEYSLICE);
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
-        int numInitialKeys = 100000;
-        int numKeys = 1000000;
-        int numTests = 5;
-        int dontUse = 1;
-        int len_prefix = Integer.parseInt(args[0]);
-        int len_random = 20;
+        final int numInitialKeys = 100000;
+        final int numKeys = 10000000;
+        final int numTests = 5;
+        final int dontUse = 1;
+        final int len_prefix = Integer.parseInt(args[0]);
+        final int len_random = 20;
         int[] intKeyArray = new Random().ints(numKeys + numInitialKeys, 100000000, 999999999).toArray();
         int[] IndexArray = new Random().ints(numKeys/2,0, numKeys + numInitialKeys - 1).toArray();
         String[] Keys = new String[numKeys + numInitialKeys];
@@ -98,14 +98,14 @@ public class Evaluate {
             System.out.println("Masstree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }
-        long masstreeins = (numKeys) / (sumins/(numTests-1))*1000;
-        long masstreeget = (numKeys/2) / (sumget/(numTests-1))*1000;
-        long masstreegetr = (numKeys/10) / (sumgetr/(numTests-1))*1000;
-        long masstreedel = (numKeys/2) / (sumdel/(numTests-1))*1000;
-        System.out.println("Masstree: "+ numKeys + "keys inserted/" + (sumins/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("Masstree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("Masstree: "+ numKeys/10 + "times rangesearched/" + (sumgetr/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("Masstree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
+        long masstreeins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
+        long masstreeget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
+        long masstreegetr = (numKeys/10) / (sumgetr/(numTests - dontUse - 1))*1000;
+        long masstreedel = (numKeys/2) / (sumdel/(numTests - dontUse - 1))*1000;
+        System.out.println("Masstree: "+ numKeys + "keys inserted/" + (sumins/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("Masstree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("Masstree: "+ numKeys/10 + "times rangesearched/" + (sumgetr/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("Masstree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
         System.out.println("Masstree.put: "+ masstreeins + " [times/sec]");
         System.out.println("Masstree.get: "+ masstreeget + " [times/sec]");
         System.out.println("Masstree.getrange: "+ masstreegetr + " [times/sec]");
@@ -155,14 +155,14 @@ public class Evaluate {
             System.out.println("B+tree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }
-        long bplusins = (numKeys) / (sumins/(numTests-1))*1000;
-        long bplusget = (numKeys/2) / (sumget/(numTests-1))*1000;
-        long bplusgetr = (numKeys/10) / (sumgetr/(numTests-1))*1000;
-        long bplusdel = (numKeys/2) / (sumdel/(numTests-1))*1000;
-        System.out.println("B+tree: "+ numKeys + "keys inserted/" + (sumins/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("B+tree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("B+tree: "+ numKeys/10 + "times rangesearched/" + (sumgetr/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("B+tree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
+        long bplusins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
+        long bplusget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
+        long bplusgetr = (numKeys/10) / (sumgetr/(numTests - dontUse - 1))*1000;
+        long bplusdel = (numKeys/2) / (sumdel/(numTests - dontUse - 1))*1000;
+        System.out.println("B+tree: "+ numKeys + "keys inserted/" + (sumins/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("B+tree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("B+tree: "+ numKeys/10 + "times rangesearched/" + (sumgetr/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("B+tree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
         System.out.println("B+tree.put: "+ bplusins + " [times/sec]");
         System.out.println("B+tree.get: "+ bplusget + " [times/sec]");
         System.out.println("B+tree.getrange: "+ bplusgetr + " [times/sec]");
@@ -204,12 +204,12 @@ public class Evaluate {
             System.out.println("RedBlacktree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
         }
-        long rbins = (numKeys) / (sumins/(numTests-1))*1000;
-        long rbget = (numKeys/2) / (sumget/(numTests-1))*1000;
-        long rbdel = (numKeys/2) / (sumdel/(numTests-1))*1000;
-        System.out.println("RedBlacktree: "+ numKeys + "keys inserted/" + (sumins/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("RedBlacktree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
-        System.out.println("RedBlacktree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests-1)) + "ms (mean of " + (numTests - 1) + " times)");
+        long rbins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
+        long rbget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
+        long rbdel = (numKeys/2) / (sumdel/(numTests - dontUse - 1))*1000;
+        System.out.println("RedBlacktree: "+ numKeys + "keys inserted/" + (sumins/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("RedBlacktree: "+ numKeys/2 + "keys searched/" + (sumget/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("RedBlacktree: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
         System.out.println("RedBlacktree.put: "+ rbins + " [times/sec]");
         System.out.println("RedBlacktree.get: "+ rbget + " [times/sec]");
         System.out.println("RedBlacktree.delete: "+ rbdel + " [times/sec]");
@@ -217,19 +217,64 @@ public class Evaluate {
         sumins = 0;
         sumget = 0;
         sumdel = 0;
-        long[] data = {masstreeins, bplusins, rbins, masstreeget, bplusget, rbget, masstreegetr, bplusgetr, masstreedel, bplusdel, rbdel};
-        exportCsv(data, name);
+
+        for(int t = 0; t < numTests; t++){
+            HashMap<String, String> map = new HashMap<String, String>();
+            for(int i = 0; i < numInitialKeys; i++){
+                map.put(Keys[i], " ");
+            }
+
+            long startTime = System.currentTimeMillis();
+            for(int i = numInitialKeys; i < numKeys + numInitialKeys; i++){
+                map.put(Keys[i], " ");
+            }
+            long Time = System.currentTimeMillis() - startTime;
+            if(t > dontUse){sumins += Time;}
+            System.out.println("HashMap #" + t + ": " + numKeys + "keys inserted/" + Time + " ms");
+
+            startTime = System.currentTimeMillis();
+            for(int i = 0; i < numKeys/2; i++){
+                map.get(Keys[IndexArray[i]]);
+            }
+            Time = System.currentTimeMillis() - startTime;
+            if(t > dontUse){sumget += Time;}
+            System.out.println("HashMap #" + t + ": " + numKeys/2 + "keys searched/" + Time + " ms");
+
+            startTime = System.currentTimeMillis();
+            for(int i = 0; i < numKeys/2; i++){
+                map.remove(Keys[IndexArray[i]]);
+            }
+            Time = System.currentTimeMillis() - startTime;
+            if(t > dontUse){sumdel += Time;}
+            System.out.println("HashMap #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
+            map = null;
+        }
+        long hashins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
+        long hashget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
+        long hashdel = (numKeys/2) / (sumdel/(numTests - dontUse - 1))*1000;
+        System.out.println("HashMap: "+ numKeys + "keys inserted/" + (sumins/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("HashMap: "+ numKeys/2 + "keys searched/" + (sumget/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("HashMap: "+ numKeys/2 + "keys deleted/" + (sumdel/(numTests - dontUse - 1)) + "ms (mean of " + (numTests - dontUse - 1) + " times)");
+        System.out.println("HashMap.put: "+ hashins + " [times/sec]");
+        System.out.println("HashMap.get: "+ hashget + " [times/sec]");
+        System.out.println("HashMap.delete: "+ hashdel + " [times/sec]");
+        System.out.println("=============================================================");
+        sumins = 0;
+        sumget = 0;
+        sumdel = 0;
+        long[] data = {masstreeins, bplusins, rbins, hashins, masstreeget, bplusget, rbget, hashget, masstreegetr, bplusgetr, masstreedel, bplusdel, rbdel, hashdel};
+        exportCsv(data, name, len_prefix, len_random);
         return;
     }
 
-    public static void exportCsv(long[] data, String name){
+    public static void exportCsv(long[] data, String name, int lenpre, int lenran){
         try {
             File file = new File("./data/" + name + ".csv");
             file.createNewFile();
             FileWriter fw = new FileWriter(file, false);
             PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
             
-            pw.print("Operation,Masstree,B+tree,RedBlackTree");
+            pw.print("Operation,Masstree,B+tree,RedBlackTree,HashMap");
             pw.println();
             pw.print("put");
             pw.print(",");
@@ -238,33 +283,39 @@ public class Evaluate {
             pw.print(data[1]);
             pw.print(",");
             pw.print(data[2]);
-            pw.println();
-            pw.print("get");
             pw.print(",");
             pw.print(data[3]);
+            pw.println();
+            pw.print("get");
             pw.print(",");
             pw.print(data[4]);
             pw.print(",");
             pw.print(data[5]);
-            pw.println();
-            pw.print("getrange");
             pw.print(",");
             pw.print(data[6]);
             pw.print(",");
             pw.print(data[7]);
             pw.println();
-            pw.print("delete");
+            pw.print("getrange");
             pw.print(",");
             pw.print(data[8]);
             pw.print(",");
             pw.print(data[9]);
+            pw.println();
+            pw.print("delete");
             pw.print(",");
             pw.print(data[10]);
+            pw.print(",");
+            pw.print(data[11]);
+            pw.print(",");
+            pw.print(data[12]);
+            pw.print(",");
+            pw.print(data[13]);
             pw.println();
 
             pw.close();
  
-            System.out.println("csvファイルを出力しました");
+            System.out.println(lenpre + "prefix + " + lenran + "random: Output at "+ "data/" + name + ".csv");
  
         } catch (IOException ex) {
             ex.printStackTrace();
