@@ -12,7 +12,7 @@ public class Evaluate {
 
     public static class RandStr {
 
-        private static String target = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private static String target = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         Random rnd = new Random(0);
         // rand string create
         public String randStrFunc(int count) {
@@ -154,6 +154,7 @@ public class Evaluate {
             if(t > dontUse){sumdel += Time;}
             System.out.println("B+tree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
+            System.gc();
         }
         long bplusins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
         long bplusget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
@@ -203,6 +204,7 @@ public class Evaluate {
             if(t > dontUse){sumdel += Time;}
             System.out.println("RedBlacktree #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             tree = null;
+            System.gc();
         }
         long rbins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
         long rbget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
@@ -248,6 +250,7 @@ public class Evaluate {
             if(t > dontUse){sumdel += Time;}
             System.out.println("HashMap #" + t + ": " + numKeys/2 + "keys deleted/" + Time + " ms");
             map = null;
+            System.gc();
         }
         long hashins = (numKeys) / (sumins/(numTests - dontUse - 1))*1000;
         long hashget = (numKeys/2) / (sumget/(numTests - dontUse - 1))*1000;
