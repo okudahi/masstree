@@ -37,7 +37,7 @@ public class Evaluate {
         System.out.println("Masstree:LEN_KEYSLICE = " + MassTree.MassTreeNode.LEN_KEYSLICE);
         System.out.println("B+tree:MAX_CHILD = " + Bplustree.MAX_CHILD);
         int numInitialKeys = 100000;
-        int numKeys = 10000000;
+        int numKeys = 1000000;
         int numTests = 11;
         int len_prefix = Integer.parseInt(args[0]);
         int len_random = 20;
