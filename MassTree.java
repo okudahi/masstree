@@ -37,6 +37,16 @@ public class MassTree {
         return this.rootTree.getrange(k, n);
     }
 
+    // 可視化用dotファイル出力
+    public void makeDotFile(){
+        this.rootTree.makeDotFile();
+    }
+    // デバッグ用
+    public void validate(){
+        if(this.rootTree.validate() == true) System.out.println("The tree is validated.");
+        else System.out.println("Warning: The tree is invalid.");
+    }
+
     public static class MassTreeNode {
 
         final static int MAX_CHILD = 12;
@@ -64,17 +74,9 @@ public class MassTree {
                 }
                 return -1;
             }
+
             //　キーkが入るべきindexを返す
-            int keyIndex(String k, int sliceIndex){ 
-                int i;
-                for(i = 0; i < this.nkeys; i++){
-                    int cmp = compKey(k, keys[i], sliceIndex);
-                    if(cmp <= 0) return i;
-                }
-                return i;
-            }
-            
-            int keyIndex(String k){ //　キーkが入るべきindexを返す
+            int keyIndex(String k){ 
                 int i;
                 for(i = 0; i < this.nkeys; i++){
                     int cmp = k.compareTo(this.keys[i]);
@@ -82,14 +84,26 @@ public class MassTree {
                         break;
                     } // k < keys[i]
                 }
+                return
+                 i;
+            }
+
+            //　キーkが入るべきindexを返す
+            int keyIndex(String k, int sliceIndex){ 
+                int i;
+                for(i = 0; i < this.nkeys; i++){
+                    int cmp = compKey(k, keys[i], sliceIndex);
+                    if(cmp < 0) return i;
+                }
                 return i;
             }
 
-            int compKey(String k, String keysi, int sliceIndex){
+            // キーの比較(kのsliceIndex文字目からとkeysIの比較)
+            int compKey(String k, String keysI, int sliceIndex){
                 for(int j = 0; j < Math.min(LEN_KEYSLICE, k.length()-sliceIndex); j++){
-                    int cmp = k.charAt(j+sliceIndex) - keysi.charAt(j);
+                    int cmp = k.charAt(j+sliceIndex) - keysI.charAt(j);
                     if (cmp != 0)
-                        return cmp; // cmp > 0 => keyslice > keysi
+                        return cmp; // cmp > 0 => keyslice > keysI
                 }
                 return 0; // キーが一致
             }
@@ -98,6 +112,7 @@ public class MassTree {
             abstract public LayerOrDatum get(String k, int sliceIndex);
             abstract public int getrange(String startKeySlice, String suffix, String[] vals, int startIndex, int n);
             abstract public boolean delete(String k, String suf);
+            abstract public boolean validate(String min, String max);
         }
         
         // 分割の際に親にリクエストを送る
@@ -258,6 +273,25 @@ public class MassTree {
                     }
                 }
                 return false; // 子どもが消えてないとき、または削除後のnkeysが1以上のとき、そのまま終了
+            }
+
+            public boolean validate(String min, String max){
+                for(int i = 0; i < nkeys; i++){
+                    int cmpMin = keys[i].compareTo(min); // keys[i] - min (expect >= 0)
+                    int cmpMax = keys[i].compareTo(max); // keys[i] - max (expext < 0)
+                    System.out.println(min + " <= " + keys[i] + " < " + max + "?");
+                    if(cmpMin < 0 || cmpMax >= 0) {
+                        System.out.println("NG");
+                        return false;
+                    }
+                    else System.out.println("OK");
+                }
+                for(int i = 0; i <= nkeys; i++){
+                    String nextMin = i == 0? "": keys[i-1];
+                    String nextMax = i == nkeys? "~": keys[i];
+                    if(child[i].validate(nextMin, nextMax) == false) return false;
+                }
+                return true;
             }
     
         }
@@ -508,6 +542,27 @@ public class MassTree {
                     }
                 } else {return false;} // key(k)がまだない場合、何もしない
             }
+
+            public boolean validate(String min, String max){
+                for(int i = 0; i < nkeys; i++){
+                    int cmpMin = keys[i].compareTo(min); // keys[i] - min (expect >= 0)
+                    int cmpMax = keys[i].compareTo(max); // keys[i] - max (expext < 0)
+                    System.out.println(min + " <= " + keys[i] + " < " + max + "?");
+                    if(cmpMin < 0 || cmpMax >= 0) {
+                        System.out.println("NG");
+                        return false;
+                    }
+                    else System.out.println("OK");
+                }
+                for(int i = 0; i < nkeys; i++){
+                    if(data[i] instanceof Layer){
+                        if(((Layer)data[i]).getNextLayer().root.validate("","~") == false){
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
         }
     
     
@@ -642,6 +697,14 @@ public class MassTree {
                 l.add(vals[i]);
             }
             return l;
+        }
+
+        public boolean validate(){
+            if(this.root == null){
+                System.out.println("this tree is empty");
+                return true;
+            }
+            return this.root.validate("","~");
         }
     
     

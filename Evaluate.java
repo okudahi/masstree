@@ -42,7 +42,7 @@ public class Evaluate {
         final int dontUse = 1;
         final int len_prefix = Integer.parseInt(args[0]);
         final int len_random = 20;
-        int[] intKeyArray = new Random().ints(numKeys + numInitialKeys, 100000000, 999999999).toArray();
+        // int[] intKeyArray = new Random().ints(numKeys + numInitialKeys, 100000000, 999999999).toArray();
         int[] IndexArray = new Random().ints(numKeys/2,0, numKeys + numInitialKeys - 1).toArray();
         String[] Keys = new String[numKeys + numInitialKeys];
         String prefix = "";
@@ -69,6 +69,7 @@ public class Evaluate {
             for(int i = numInitialKeys; i < numKeys + numInitialKeys; i++){
                 tree.put(Keys[i], " ");
             }
+            // tree.validate();
             // tree.rootTree.makeDotFile();
             long Time = System.currentTimeMillis() - startTime;
             if(t > dontUse){sumins += Time;}
