@@ -3,7 +3,7 @@ import math
 import numpy as np
 from matplotlib import pyplot
 
-size_array = [0, 20, 40, 80, 160, 320, 640]
+size_array = [0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 160, 320, 640]
 #size_array = [0,80,640]
 def makefigure(operation):
     results_mass = []
@@ -45,7 +45,7 @@ def makefigure(operation):
     pyplot.plot(size_array, result_mass, label='masstree')
     pyplot.plot(size_array, result_b, label='B+tree')
     pyplot.plot(size_array, result_rb, label='redblacktree')
-    pyplot.plot(size_array, result_hm, label='hashmap')
+    #pyplot.plot(size_array, result_hm, label='hashmap')
     pyplot.legend()
     pyplot.savefig("graphs/" + op + "_10000000keys_smooth.png")
     pyplot.show()

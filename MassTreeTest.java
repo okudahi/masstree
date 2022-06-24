@@ -1,6 +1,7 @@
 import java.util.Random;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MassTreeTest {
@@ -28,25 +29,18 @@ public class MassTreeTest {
 
     public static void main(String[] args){
         MassTree tree = new MassTree();
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000008","8");
-
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000000","0");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000001","1");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000009","9");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000003","3");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000004","4");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000002","2");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000005","5");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000006","6");
-        tree.put("1000000000000000000000000000000000000000000000000000000000000000000000000000000007","7");
-        tree.getrange("100000000000000000",10);
+        Random rand = new Random(0); 
+        int[] intArray0 = rand.ints(100, 10500, 11500).toArray();
+        int[] intArray1 = rand.ints(70, 0, 70).toArray();
+        HashMap<String, String> m = new HashMap<String, String>();
+        for(int i = 0; i < intArray0.length; i++){
+            m.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
+            tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
+            System.out.println(intArray0[i] + " inserted");
+        }
+        tree.validate();
         tree.rootTree.makeDotFile();
-        // int[] intArray0 = new Random().ints(10, 10500, 11500).toArray();
-        // int[] intArray1 = new Random().ints(70, 0, 70).toArray();
-        // for(int i = 0; i < intArray0.length; i++){
-        //     tree.put(String.valueOf(intArray0[i]), String.valueOf(intArray0[i]));
-        //     System.out.println(intArray0[i] + " inserted");
-        // }
+        System.out.println(m.size() + " " + tree.getrange("",10000).size());
         // for(int i = 0; i < intArray0.length; i++){ 
         //     System.out.println("key "+ tree.get(String.valueOf(intArray0[i])));
         // }
