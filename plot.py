@@ -47,7 +47,7 @@ def makefigure(operation):
     pyplot.plot(size_array, result_rb, label='redblacktree')
     #pyplot.plot(size_array, result_hm, label='hashmap')
     pyplot.legend()
-    pyplot.savefig("graphs/" + op + "_10000000keys_smooth.png")
+    pyplot.savefig("graphs/" + op + "_10000000keys_smooth_new.png")
     pyplot.show()
 makefigure(0)
 makefigure(1)
