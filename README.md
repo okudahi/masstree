@@ -1,1 +1,15 @@
-# miniproject
+# implementation of Masstree in Java
+- ```MassTree.java```
+  - My implementaion of Masstree
+  - [Introduced by Mao, Kauler and Morris in 2012](https://github.com/okudahi/masstree/files/9041688/Masstree.pdf)
+  - Combination of trie & B+ tree
+- ```Bplustree.java```
+  - My implementaion of B+ tree
+- ```RedBlackTree.java```
+  - My implementation of Red-Black tree
+- ```Evaluate.java```
+  - Compares the performance of the 3 types of trees above
+  - Outputs the result as a csv file
+  - Runned by a shellscript ```test.sh```
+- ```plot.ipynb```
+  - Reads the csv files and make graphs
