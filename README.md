@@ -1,8 +1,11 @@
 # implementation of Masstree in Java
-- ```MassTree.java```
-  - My implementaion of Masstree
+## Masstree
   - [Introduced by Mao, Kauler and Morris in 2012](https://github.com/okudahi/masstree/files/9041688/Masstree.pdf)
   - Combination of trie & B+ tree
+## Files
+- ```MassTree.java```
+  - My implementaion of Masstree
+
 - ```Bplustree.java```
   - My implementaion of B+ tree
 - ```RedBlackTree.java```
@@ -13,3 +16,6 @@
   - Runned by a shellscript ```test.sh```
 - ```plot.ipynb```
   - Reads the csv files and make graphs
+- ```*.dot```
+  - DOT files for visualization
+  - Can be rendered by [graphviz.online](https://dreampuf.github.io/GraphvizOnline/)
