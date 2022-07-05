@@ -4,10 +4,10 @@
   - Combination of trie & B+ tree
 ## Files
 - ```MassTree.java```
-  - My implementaion of Masstree
+  - My implementation of Masstree
 
 - ```Bplustree.java```
-  - My implementaion of B+ tree
+  - My implementation of B+ tree
 - ```RedBlackTree.java```
   - My implementation of Red-Black tree
 - ```Evaluate.java```
